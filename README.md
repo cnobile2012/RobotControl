@@ -1,4 +1,4 @@
 RobotControl
 ============
 
-This repository will be used for the code used in my new robot project.
+This repository will be used for the code in my robot project.
