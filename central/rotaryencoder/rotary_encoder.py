@@ -3,11 +3,19 @@
 #
 
 """
-This is rotary encode code converted from the C code for the AVR series of
+This is rotary encoder code converted from the C code for the AVR series of
 microcontrollers originally written by Peter Dannegger at:
 http://www.mikrocontroller.net/articles/Drehgeber
 
 by Carl J. Nobile
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 from Adafruit_BBIO import GPIO
@@ -21,7 +29,15 @@ class RotaryEncoder(object):
         self._last = 0
         self._phaseA = phaseA
         self._phaseB = phaseB
+        self._setPins()
         self._bounceTime = self._DEFAULT_BOUNCE_TIME
+
+    def _setPins(self):
+        GPIO.setup(self._phaseA, GPIO.IN)
+        GPIO.setup(self._phaseB, GPIO.IN)
+
+    def resetPins(self):
+        pass
 
     def setBounceTime(self, time):
         """
@@ -30,10 +46,6 @@ class RotaryEncoder(object):
         time - Time in milliseconds.
         """
         self._bounceTime = time
-
-    def setPins(self):
-        GPIO.setup(self._phaseA, GPIO.IN)
-        GPIO.setup(self._phaseB, GPIO.IN)
 
     def initEncoder(self):
         new = 0
@@ -112,15 +124,18 @@ class RotaryEncoder(object):
 
 
 if __name__ == '__main__':
+    from control.utils import setupPins
+
     value = 0
     phaseA = 'p8_3'
     phaseB = 'p8_4'
 
     re = RotaryEncoder(phaseA, phaseB)
-    re.setPins()
     re.initEncoder()
     re.enableInterrupts()
+    setupPins(8, 5)
 
     while True:
         value = += re.encodeRead_1()
+        print value
         # Set LEDs here. *** FIX ME ***
