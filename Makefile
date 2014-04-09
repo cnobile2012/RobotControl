@@ -17,8 +17,8 @@ tar	: clean
           --exclude=".gitignore" $(PACKAGE_DIR))
 
 tests	:
-	PYTHONPATH=.
-	python central/rotaryencoder/rotary_encoder.py
+	(export PYTHONPATH=$(PREFIX); \
+         python central/rotaryencoder/rotary_encoder.py)
 
 #----------------------------------------------------------------------
 
