@@ -19,7 +19,8 @@ SOFTWARE.
 
 import os
 import logging
-from logging_config import ConfigLogger
+
+from .logging_config import ConfigLogger
 from Adafruit_BBIO import GPIO
 
 
