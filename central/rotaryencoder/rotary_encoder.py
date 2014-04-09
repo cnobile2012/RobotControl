@@ -77,7 +77,7 @@ class RotaryEncoder(object):
         GPIO.remove_event_detect(self._phaseA)
         GPIO.remove_event_detect(self._phaseB)
 
-    def __phaseAInterrupt(self):
+    def __phaseAInterrupt(self, channel):
         new = 0
 
         if self._phaseA:
@@ -89,7 +89,7 @@ class RotaryEncoder(object):
             self._last = new
             self._encDelta += (diff & 2) - 1
 
-    def __phaseBInterrupt(self):
+    def __phaseBInterrupt(self, channel):
         new = 0
 
         if self._phaseB:
