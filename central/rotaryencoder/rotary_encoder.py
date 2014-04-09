@@ -124,7 +124,7 @@ class RotaryEncoder(object):
 
 
 if __name__ == '__main__':
-    from control.utils import setupPins
+    from central.utils import setupPins
 
     value = 0
     phaseA = 'p8_3'
@@ -136,6 +136,6 @@ if __name__ == '__main__':
     setupPins(8, 5)
 
     while True:
-        value = += re.encodeRead_1()
+        value += re.encodeRead_1()
         print value
         # Set LEDs here. *** FIX ME ***
