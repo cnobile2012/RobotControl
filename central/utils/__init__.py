@@ -40,7 +40,7 @@ def getBasePath():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-def setupPins(pinHeader, startPin, range=8, direction=GPIO.OUT):
+def setupPins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
     """
     Sets up a range of pins to a specified direction. (GPIO.IN or GPIO.OUT)
     """
@@ -55,9 +55,10 @@ def setupPins(pinHeader, startPin, range=8, direction=GPIO.OUT):
         raise TypeError("Invalid pin direction {} must be one of {}.".format(
             direction, validDir))
 
-    for idx in range(range):
+    for idx in range(pinRange):
         pin = startPin + idx
-        channel = "p{}_{}".format(pinHeader, pin)
+        channel = "P{}_{}".format(pinHeader, pin)
+        #print channel, direction
         GPIO.setup(channel, direction)
 
 def resetPins():
