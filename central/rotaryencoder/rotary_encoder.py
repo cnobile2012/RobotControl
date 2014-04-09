@@ -59,25 +59,7 @@ class RotaryEncoder(object):
         self._last = new
         self._encDelta = 0;
 
-    def enableInterrupts(self):
-        """
-        This sets the interrupt.
-        """
-        GPIO.add_event_detect(
-            self._phaseA, GPIO.RISING, bouncetime=self._bounceTime,
-            callback=self.__phaseAInterrupt)
-        GPIO.add_event_detect(
-            self._phaseB, GPIO.RISING, bouncetime=self._bounceTime,
-            callback=self.__phaseBInterrupt)
-
-    def disableInterrupts(self):
-        """
-        This clears the interrupt.
-        """
-        GPIO.remove_event_detect(self._phaseA)
-        GPIO.remove_event_detect(self._phaseB)
-
-    def __phaseAInterrupt(self, channel):
+    def _phaseAInterrupt(self, channel):
         new = 0
 
         if self._phaseA:
@@ -89,7 +71,7 @@ class RotaryEncoder(object):
             self._last = new
             self._encDelta += (diff & 2) - 1
 
-    def __phaseBInterrupt(self, channel):
+    def _phaseBInterrupt(self, channel):
         new = 0
 
         if self._phaseB:
@@ -100,6 +82,24 @@ class RotaryEncoder(object):
         if diff & 1:
             self._last = new
             self._encDelta += (diff & 2) - 1
+
+    def enableInterrupts(self):
+        """
+        This sets the interrupt.
+        """
+        GPIO.add_event_detect(
+            self._phaseA, GPIO.RISING, bouncetime=self._bounceTime,
+            callback=self._phaseAInterrupt)
+        GPIO.add_event_detect(
+            self._phaseB, GPIO.RISING, bouncetime=self._bounceTime,
+            callback=self._phaseBInterrupt)
+
+    def disableInterrupts(self):
+        """
+        This clears the interrupt.
+        """
+        GPIO.remove_event_detect(self._phaseA)
+        GPIO.remove_event_detect(self._phaseB)
 
     def encodeRead_1(self):
         self.disableInterrupts()
