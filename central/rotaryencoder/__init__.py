@@ -1,5 +1,5 @@
 #
-# central/rotoryencoder/__init__.py
+# central/rotaryencoder/__init__.py
 #
 
 """
@@ -16,4 +16,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .rotory_encoder import RotaryEncoder
+from .rotary_encoder import RotaryEncoder, test

@@ -18,7 +18,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import thread
+
 from Adafruit_BBIO import GPIO
+
+_lock = thread.allocate_lock()
 
 
 class RotaryEncoder(object):
@@ -50,38 +54,53 @@ class RotaryEncoder(object):
     def initEncoder(self):
         new = 0
 
-        if self._phaseA:
+        if GPIO.input(self._phaseA):
             new = 3
 
-        if self._phaseB:
+        if GPIO.input(self._phaseB):
             new ^= 1
 
         self._last = new
         self._encDelta = 0;
 
     def _phaseAInterrupt(self, channel):
-        new = 0
+        if not _lock.acquire(0): return
 
-        if self._phaseA:
-            new = 3
+        try:
+            new = 0
 
-        diff = self._last - new
+            if GPIO.input(channel):
+                new = 3
 
-        if diff & 1:
-            self._last = new
-            self._encDelta += (diff & 2) - 1
+            diff = self._last - new
+
+            if diff & 1:
+                self._last = new
+                self._encDelta += (diff & 2) - 1
+        except Exception, e:
+            print e
+
+        _lock.release()
 
     def _phaseBInterrupt(self, channel):
-        new = 0
+        if not _lock.acquire(0): return
 
-        if self._phaseB:
-            new ^= 1
+        try:
+            new = 0
 
-        diff = self._last - new
+            if GPIO.input(channel):
+                new ^= 1
 
-        if diff & 1:
-            self._last = new
-            self._encDelta += (diff & 2) - 1
+            diff = self._last - new
+
+            if diff & 1:
+                self._last = new
+                self._encDelta += (diff & 2) - 1
+
+        except Exception, e:
+            print e
+
+        _lock.release()
 
     def enableInterrupts(self):
         """
@@ -123,19 +142,24 @@ class RotaryEncoder(object):
         return value >> 2
 
 
-if __name__ == '__main__':
+def test(phaseA, phaseB, header, startPin):
     from central.utils import setupPins
 
     value = 0
-    phaseA = 'p8_3'
-    phaseB = 'p8_4'
-
     re = RotaryEncoder(phaseA, phaseB)
     re.initEncoder()
     re.enableInterrupts()
-    setupPins(8, 5)
+    #setupPins(header, startPin)
 
     while True:
-        value += re.encodeRead_1()
+        value += re.encodeRead_2()
         print value
         # Set LEDs here. *** FIX ME ***
+
+
+if __name__ == '__main__':
+    phaseA = 'P8_7'
+    phaseB = 'P8_8'
+    header = 8
+    startPin = 9
+    test(phaseA, phaseB, header, startPin)
