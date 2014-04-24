@@ -106,19 +106,23 @@ class RotaryEncoder(object):
         """
         This sets the interrupt.
         """
+        _lock.acquire()
         GPIO.add_event_detect(
             self._phaseA, GPIO.RISING, bouncetime=self._bounceTime,
             callback=self._phaseAInterrupt)
         GPIO.add_event_detect(
             self._phaseB, GPIO.RISING, bouncetime=self._bounceTime,
             callback=self._phaseBInterrupt)
+        _lock.release()
 
     def disableInterrupts(self):
         """
         This clears the interrupt.
         """
+        _lock.acquire()
         GPIO.remove_event_detect(self._phaseA)
         GPIO.remove_event_detect(self._phaseB)
+        _lock.release()
 
     def encodeRead_1(self):
         self.disableInterrupts()
@@ -147,12 +151,13 @@ def test(phaseA, phaseB, header, startPin):
 
     value = 0
     re = RotaryEncoder(phaseA, phaseB)
+    re.setBounceTime(300)
     re.initEncoder()
     re.enableInterrupts()
     #setupPins(header, startPin)
 
     while True:
-        value += re.encodeRead_2()
+        value += re.encodeRead_1()
         print value
         # Set LEDs here. *** FIX ME ***
 
