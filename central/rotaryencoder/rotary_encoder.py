@@ -18,11 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import thread
-
-from Adafruit_BBIO import GPIO
-
-_lock = thread.allocate_lock()
+from bbio import *
 
 
 class RotaryEncoder(object):
@@ -37,8 +33,8 @@ class RotaryEncoder(object):
         self._bounceTime = self._DEFAULT_BOUNCE_TIME
 
     def _setPins(self):
-        GPIO.setup(self._phaseA, GPIO.IN)
-        GPIO.setup(self._phaseB, GPIO.IN)
+        pinMode(self._phaseA, INPUT, PULLUP)
+        pinMode(self._phaseB, INPUT, PULLUP)
 
     def resetPins(self):
         pass
@@ -54,41 +50,23 @@ class RotaryEncoder(object):
     def initEncoder(self):
         new = 0
 
-        if GPIO.input(self._phaseA):
+        if digitalRead(self._phaseA):
             new = 3
 
-        if GPIO.input(self._phaseB):
+        if digitalRead(self._phaseB):
             new ^= 1
 
         self._last = new
         self._encDelta = 0;
 
-    def _phaseAInterrupt(self, channel):
-        if not _lock.acquire(0): return
-
+    def _phaseInterrupt(self):
         try:
             new = 0
 
-            if GPIO.input(channel):
+            if digitalRead(self._phaseA):
                 new = 3
 
-            diff = self._last - new
-
-            if diff & 1:
-                self._last = new
-                self._encDelta += (diff & 2) - 1
-        except Exception, e:
-            print e
-
-        _lock.release()
-
-    def _phaseBInterrupt(self, channel):
-        if not _lock.acquire(0): return
-
-        try:
-            new = 0
-
-            if GPIO.input(channel):
+            if digitalRead(self._phaseB):
                 new ^= 1
 
             diff = self._last - new
@@ -100,29 +78,19 @@ class RotaryEncoder(object):
         except Exception, e:
             print e
 
-        _lock.release()
-
     def enableInterrupts(self):
         """
         This sets the interrupt.
         """
-        _lock.acquire()
-        GPIO.add_event_detect(
-            self._phaseA, GPIO.RISING, bouncetime=self._bounceTime,
-            callback=self._phaseAInterrupt)
-        GPIO.add_event_detect(
-            self._phaseB, GPIO.RISING, bouncetime=self._bounceTime,
-            callback=self._phaseBInterrupt)
-        _lock.release()
+        attachInterrupt(self._phaseA, self._phaseInterrupt, RISING)
+        attachInterrupt(self._phaseB, self._phaseInterrupt, RISING)
 
     def disableInterrupts(self):
         """
         This clears the interrupt.
         """
-        _lock.acquire()
-        GPIO.remove_event_detect(self._phaseA)
-        GPIO.remove_event_detect(self._phaseB)
-        _lock.release()
+        detachInterrupt(self._phaseA)
+        detachInterrupt(self._phaseB)
 
     def encodeRead_1(self):
         self.disableInterrupts()
@@ -163,8 +131,8 @@ def test(phaseA, phaseB, header, startPin):
 
 
 if __name__ == '__main__':
-    phaseA = 'P8_7'
-    phaseB = 'P8_8'
+    phaseA = 'GPIO2_2'
+    phaseB = 'GPIO2_3'
     header = 8
     startPin = 9
     test(phaseA, phaseB, header, startPin)
