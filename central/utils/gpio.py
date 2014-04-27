@@ -2,6 +2,8 @@
 # central/utils/gpio.py
 #
 
+from central.utils import (
+    InvalidPinNomenclatureException, InvalidDirectionException)
 
 
 class GPIO(object):
