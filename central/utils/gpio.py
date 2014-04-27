@@ -42,8 +42,10 @@ class GPIO(object):
         head, delimiter, tail = pin.partition('_')
         head = head.upper()
 
-        if head[0] == 'P' and head[-1].isdigit() and tail.isdigit():
-            result = self.__PIN_MAP.get(int(head[-1]), {}).get(tail, 0)
+        if (len(head) == 2 and head[0] == 'P' and
+            head[-1].isdigit() and tail.isdigit()):
+            result = self.__PIN_MAP.get(int(head[-1]), {}).get(
+               int(tail), 0)
         elif head == 'GPIO' and tail.isdigit():
             result = int(tail)
         elif (len(head) == 5 and head[:4] == 'GPIO' and
