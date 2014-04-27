@@ -35,13 +35,19 @@ class GPIO(object):
 
     def getPinNumber(self, pin):
         result = 0
-        head, delimiter, tail = pin.partition('_')
 
-        if head.upper() == 'P' and head[-1].isdigit() and tail.isdigit():
+        if not isinstance(pin, basestring):
+            raise InvalidPinNomenclatureException(pin)
+
+        head, delimiter, tail = pin.partition('_')
+        head = head.upper()
+
+        if head[0] == 'P' and head[-1].isdigit() and tail.isdigit():
             result = self.__PIN_MAP.get(int(head[-1]), {}).get(tail, 0)
-        elif head.upper() == 'GPIO' and tail.isdigit():
+        elif head == 'GPIO' and tail.isdigit():
             result = int(tail)
-        elif head[-1].isdigit() and tail.isdigit():
+        elif (len(head) == 5 and head[:4] == 'GPIO' and
+              head[-1].isdigit() and tail.isdigit()):
             result = int(head[-1]) * 32 + int(tail)
         else:
             raise InvalidPinNomenclatureException(pin)
