@@ -24,6 +24,25 @@ from .logging_config import ConfigLogger
 from Adafruit_BBIO import GPIO
 
 
+class BaseGPIOException(Exception):
+    def __init__(self, msg):
+        super(BaseGPIOException, self).__init__(msg)
+
+
+class InvalidPinNomenclatureException(BaseGPIOException):
+    def __init__(self, pin):
+        msg = ("Invalid pin nomenclature, found: {} should be one of: "
+               "P<num>_<num> or GPIO<num>_<num>, or GPIO_<num>").format(pin)
+        super(InvalidPinNomenclatureException, self).__init__(msg)
+
+
+class InvalidDirectionException(BaseGPIOException):
+    def __init__(self, pin):
+        msg = ("Invalid direction, found: {} should be one of: "
+               "'in' or 'out'").format(pin)
+        super(InvalidDirectionException, self).__init__(msg)
+
+
 def isRootUser(logger=''):
     result = True
     log = logging.getLogger(logger)
@@ -40,7 +59,7 @@ def getBasePath():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-def setupPins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
+def setupMultiplePins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
     """
     Sets up a range of pins to a specified direction. (GPIO.IN or GPIO.OUT)
     """
