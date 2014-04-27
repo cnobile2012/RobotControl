@@ -43,6 +43,11 @@ class InvalidDirectionException(BaseGPIOException):
         super(InvalidDirectionException, self).__init__(msg)
 
 
+class InvalidArgumentsException(BaseGPIOException):
+    def __init__(self, msg):
+        super(InvalidArgumentsException, self).__init__(msg)
+
+
 def isRootUser(logger=''):
     result = True
     log = logging.getLogger(logger)

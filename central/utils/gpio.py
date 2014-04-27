@@ -3,7 +3,8 @@
 #
 
 from central.utils import (
-    InvalidPinNomenclatureException, InvalidDirectionException)
+    InvalidPinNomenclatureException, InvalidDirectionException,
+    InvalidArgumentsException)
 
 
 class GPIO(object):
@@ -17,6 +18,8 @@ class GPIO(object):
     _EDGE = 'edge'
     _UEVENT = 'uevent'
     _VALUE = 'value'
+    __EXPORT = 'export'
+    __UNEXPORT = 'unexport'
     __PIN_MAP = {8: { 3: 38,  4: 39,  5: 34,  6: 35,  7: 66,  8: 67,  9: 69,
                      10: 68, 11: 45, 12: 44, 13: 23, 14: 26, 15: 47, 16: 46,
                      17: 27, 18: 65, 19: 22, 20: 63, 21: 62, 22: 37, 23: 36,
@@ -36,7 +39,7 @@ class GPIO(object):
     __GPIO_PATH = '/sys/class/gpio'
 
     def __init__(self):
-        pass
+        self.__exportedPins = set()
 
     def getPinNumber(self, pin):
         result = 0
@@ -50,7 +53,7 @@ class GPIO(object):
         if (len(head) == 2 and head[0] == 'P' and
             head[-1].isdigit() and tail.isdigit()):
             result = self.__PIN_MAP.get(int(head[-1]), {}).get(
-               int(tail), 0)
+                int(tail), 0)
         elif head == 'GPIO' and tail.isdigit():
             result = int(tail)
         elif (len(head) == 5 and head[:4] == 'GPIO' and
@@ -79,17 +82,35 @@ class GPIO(object):
             raise InvalidDirectionException(pin)
 
         gpioId = self.getPinNumber(pin)
-        self._writePin(gpioId, direction, file=self._DIRECTION)
+        self._writePin(gpioId, file=self.__EXPORT)
+        self._writePin(direction, gpioId=gpioId file=self._DIRECTION)
+        self.__exportedPins.add(gpioId)
 
-    def _readPin(self, gpioId, file=_VALUE):
-        path = os.path.join(self.__GPIO_PATH, 'gpio{}'.format(gpioId), file)
+    def clearPinMode(self, pin=None):
+        if pin:
+            gpioId = self.getPinNumber(pin)
+            self._writePin(gpioId, filename=self.__UNEXPORT)
+        else:
+            for gpioId in self.__exportedPins:
+                self._writePin(gpioId, filename=self.__UNEXPORT)
+
+    def _readPin(self, gpioId, filename=_VALUE):
+        path = os.path.join(self.__GPIO_PATH, 'gpio{}'.format(gpioId), filename)
         fd = os.open(path, os.O_RDONLY)
         result = os.read(fd, 256)
         os.close(fd)
         return result
 
-    def _writePin(self, gpioId, value, file=_VALUE):
-        path = os.path.join(self.__GPIO_PATH, 'gpio{}'.format(gpioId), file)
+    def _writePin(self, value, gpioId=None filename=_VALUE):
+        if gpioId:
+            path = os.path.join(self.__GPIO_PATH, 'gpio{}'.format(gpioId),
+                                filename)
+        elif filename in (self.EXPORT, self.__UNEXPORT):
+            path = os.path.join(self.__GPIO_PATH, filename)
+        else:
+            msg = "Invalid arguments, found: {}, {}, {}"
+            raise InvalidArgumentsException(msg.format(value, gpioId, filename))
+
         fd = os.open(path, os.O_WRONLY)
         numBytes = os.write(fd, value)
         os.close(fd)
