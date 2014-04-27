@@ -31,14 +31,14 @@ class BaseGPIOException(Exception):
 
 class InvalidPinNomenclatureException(BaseGPIOException):
     def __init__(self, pin):
-        msg = ("Invalid pin nomenclature, found: {} should be one of: "
+        msg = ("Invalid pin nomenclature, found: {}, should be one of: "
                "P<num>_<num> or GPIO<num>_<num>, or GPIO_<num>").format(pin)
         super(InvalidPinNomenclatureException, self).__init__(msg)
 
 
 class InvalidDirectionException(BaseGPIOException):
     def __init__(self, pin):
-        msg = ("Invalid direction, found: {} should be one of: "
+        msg = ("Invalid direction, found: {}, should be one of: "
                "'in' or 'out'").format(pin)
         super(InvalidDirectionException, self).__init__(msg)
 
