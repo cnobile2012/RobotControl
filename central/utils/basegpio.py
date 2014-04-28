@@ -1,11 +1,16 @@
 #
 # central/utils/basegpio.py
 #
-
+from __future__ import absolute_import
 import re, os, dircache
 
+#from . import getBasePath
+from .logging_config import ConfigLogger
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidArgumentsException)
+
+#log = ConfigLogger(getBasePath()).config(
+#    'motor-control', level=logging.DEBUG)
 
 
 class BaseGPIO(object):
@@ -42,6 +47,7 @@ class BaseGPIO(object):
             self._writePin(path, gpioId)
             result = True
 
+        log.debug("result: %s, path: %s", result, path)
         return result
 
     def _unexportPin(self, gpioId):
@@ -53,6 +59,7 @@ class BaseGPIO(object):
             self._writePin(path, gpioId)
             result = True
 
+        log.debug("result: %s, path: %s", result, path)
         return result
 
     def cleanup(self, pin=None):
@@ -70,6 +77,7 @@ class BaseGPIO(object):
     def _findActivePins(self):
         dirs = dircache.listdir(self._GPIO_PATH)
         dircache.annotate(self._GPIO_PATH, dirs)
+        log.debug("dirs: %s", dirs)
         return [d[4:-1] for d in dirs if self.__DIRS_RE.search(d)]
 
     def _getGpioId(self, pin):
@@ -83,8 +91,7 @@ class BaseGPIO(object):
 
         if (len(head) == 2 and head[0] == 'P' and
             head[-1].isdigit() and tail.isdigit()):
-            result = self.__PIN_MAP.get(int(head[-1]), {}).get(
-                int(tail), 0)
+            result = self.__PIN_MAP.get(int(head[-1]), {}).get(int(tail), 0)
         elif head == 'GPIO' and tail.isdigit():
             result = int(tail)
         elif (len(head) == 5 and head[:4] == 'GPIO' and
