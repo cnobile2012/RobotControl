@@ -25,7 +25,7 @@ class GPIO(BaseGPIO):
     def __init__(self):
         self.__exportedPins = set()
 
-    def setPinMode(pin, direction=None, edge=None):
+    def setPinMode(self, pin, direction=None, edge=None):
         """
         Sets digital pin mode.
 
