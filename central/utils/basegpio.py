@@ -35,9 +35,10 @@ class BaseGPIO(object):
 
     def _exportPin(self, gpioId):
         result = False
-        path = os.path.join(self._GPIO_PATH, self.__EXPORT)
+        path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId))
 
         if not os.path.exists(path):
+            path = os.path.join(self._GPIO_PATH, self.__EXPORT)
             self._writePin(path, gpioId)
             result = True
 
@@ -45,9 +46,10 @@ class BaseGPIO(object):
 
     def _unexportPin(self, gpioId):
         result = False
-        path = os.path.join(self._GPIO_PATH, self.__UNEXPORT)
+        path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId))
 
         if os.path.exists(path):
+            path = os.path.join(self._GPIO_PATH, self.__UNEXPORT)
             self._writePin(path, gpioId)
             result = True
 
