@@ -2,11 +2,14 @@
 # central/utils/basegpio.py
 #
 
+import re, os, dircache
+
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidArgumentsException)
 
 
 class BaseGPIO(object):
+    __DIRS_RE = re.compile(r'^gpio\d{1,3}$')
     __EXPORT = 'export'
     __UNEXPORT = 'unexport'
     __PIN_MAP = {8: { 3: 38,  4: 39,  5: 34,  6: 35,  7: 66,  8: 67,  9: 69,
@@ -31,12 +34,36 @@ class BaseGPIO(object):
         pass
 
     def _exportPin(self, gpioId):
+        result = False
         path = os.path.join(self._GPIO_PATH, self.__EXPORT)
-        self._writePin(path, gpioId)
+
+        if not os.path.exists(path):
+            self._writePin(path, gpioId)
+            result = True
+
+        return result
 
     def _unexportPin(self, gpioId):
+        result = False
         path = os.path.join(self._GPIO_PATH, self.__UNEXPORT)
-        self._writePin(path, gpioId)
+
+        if os.path.exists(path):
+            self._writePin(path, gpioId)
+            result = True
+
+        return result
+
+    def cleanup(self, pin=None):
+        if pin:
+            gpioId = self.getGpioId(pin)
+            self._unexportPin(gpioId)
+        else:
+            for gpioId in self._findActivePins():
+                self._unexportPin(gpioId)
+
+    def _findActivePins(self):
+        dirs = dircache.listdir(self._GPIO_PATH)
+        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
 
     def _getGpioId(self, pin):
         result = 0

@@ -11,6 +11,11 @@ from .basegpio import BaseGPIO
 class GPIO(BaseGPIO):
     IN = 'in'
     OUT = 'out'
+    RISING = 'rising'
+    FALLING = 'falling'
+    BOTH = 'both'
+    HIGH = 1
+    LOW = 0
     _ACTIVE_LOW = 'active_low'
     _DIRECTION = 'direction'
     _EDGE = 'edge'
@@ -85,11 +90,3 @@ class GPIO(BaseGPIO):
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
         return self._readPin(path)
-
-    def clearPinMode(self, pin=None):
-        if pin:
-            gpioId = self.getGpioId(pin)
-            self._writePin(gpioId, filename=self.__UNEXPORT)
-        else:
-            for gpioId in self.__exportedPins:
-                self._writePin(gpioId, filename=self.__UNEXPORT)
