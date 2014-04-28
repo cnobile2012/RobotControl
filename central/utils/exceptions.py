@@ -11,7 +11,7 @@ class BaseGPIOException(Exception):
 class InvalidPinNomenclatureException(BaseGPIOException):
     def __init__(self, pin):
         msg = ("Invalid pin nomenclature, found: {}, should be one of: "
-               "P<conector>_<num> or GPIO<num>_<num>, or "
+               "P<connector>_<num> or GPIO<mult>_<num>, or "
                "GPIO_<num>").format(pin)
         super(InvalidPinNomenclatureException, self).__init__(msg)
 
