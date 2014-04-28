@@ -54,8 +54,8 @@ class BaseGPIO(object):
         return result
 
     def cleanup(self, pin=None):
-        if pin:
-            gpioId = self.getGpioId(pin)
+        if pin is not None:
+            gpioId = self._getGpioId(pin)
             self._unexportPin(gpioId)
         else:
             for gpioId in self._findActivePins():
