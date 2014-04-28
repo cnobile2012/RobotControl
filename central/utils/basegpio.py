@@ -98,8 +98,9 @@ class BaseGPIO(object):
         return result
 
     def _writePin(self, path, value):
+        value = str(value)
         fd = os.open(path, os.O_WRONLY)
-        numBytes = os.write(fd, str(value))
+        numBytes = os.write(fd, value)
         os.close(fd)
 
         if numBytes != len(value):
