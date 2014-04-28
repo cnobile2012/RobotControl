@@ -2,9 +2,11 @@
 # central/utils/gpio.py
 #
 
+import os
+
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidDirectionException,
-    InvalidEdgeException InvalidArgumentsException)
+    InvalidEdgeException, InvalidArgumentsException)
 from .basegpio import BaseGPIO
 
 
@@ -43,8 +45,7 @@ class GPIO(BaseGPIO):
             raise InvalidEdgeException(pin)
 
         gpioId = self._getGpioId(pin)
-        path = os.path.join(self._GPIO_PATH, self.__EXPORT)
-        self._writePin(path, gpioId)
+        self._exportPin(gpioId)
 
         if direction:
             path = os.path.join(
