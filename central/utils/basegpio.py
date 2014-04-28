@@ -56,12 +56,16 @@ class BaseGPIO(object):
         return result
 
     def cleanup(self, pin=None):
+        result = False
+
         if pin is not None:
             gpioId = self._getGpioId(pin)
-            self._unexportPin(gpioId)
-        else:
-            for gpioId in self._findActivePins():
-                self._unexportPin(gpioId)
+            result = self._unexportPin(gpioId)
+        elif any([self._unexportPin(gpioId)
+                  for gpioId in self._findActivePins()]):
+            result = True
+
+        return result
 
     def _findActivePins(self):
         dirs = dircache.listdir(self._GPIO_PATH)
