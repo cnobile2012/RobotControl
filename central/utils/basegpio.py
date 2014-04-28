@@ -9,7 +9,7 @@ from .exceptions import (
 
 
 class BaseGPIO(object):
-    __DIRS_RE = re.compile(r'^gpio\d{1,3}$')
+    __DIRS_RE = re.compile(r'^gpio\d{1,3}/$')
     __EXPORT = 'export'
     __UNEXPORT = 'unexport'
     __PIN_MAP = {8: { 3: 38,  4: 39,  5: 34,  6: 35,  7: 66,  8: 67,  9: 69,
@@ -69,7 +69,8 @@ class BaseGPIO(object):
 
     def _findActivePins(self):
         dirs = dircache.listdir(self._GPIO_PATH)
-        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
+        dircache.annotate(self._GPIO_PATH, dirs)
+        return [d[4:-1] for d in dirs if self.__DIRS_RE.search(d)]
 
     def _getGpioId(self, pin):
         result = 0

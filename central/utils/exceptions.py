@@ -23,6 +23,13 @@ class InvalidDirectionException(BaseGPIOException):
         super(InvalidDirectionException, self).__init__(msg)
 
 
+class InvalidEdgeException(BaseGPIOException):
+    def __init__(self, pin):
+        msg = ("Invalid edge, found: {}, should be one of: "
+               "'rising', 'falling' or 'both'").format(pin)
+        super(InvalidEdgeException, self).__init__(msg)
+
+
 class InvalidArgumentsException(BaseGPIOException):
     def __init__(self, msg):
         super(InvalidArgumentsException, self).__init__(msg)

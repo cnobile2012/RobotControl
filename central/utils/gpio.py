@@ -4,7 +4,7 @@
 
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidDirectionException,
-    InvalidArgumentsException)
+    InvalidEdgeException InvalidArgumentsException)
 from .basegpio import BaseGPIO
 
 
@@ -36,8 +36,11 @@ class GPIO(BaseGPIO):
         pull      -- Set the internal resister to pull up (GPIO.PULLUP) or pull
                      down (GPIO.PULLDOWN) or neither (GPIO.PULLNONE) is default.
         """
-        if direction not in (self.IN, self.OUT):
+        if direction and direction not in (self.IN, self.OUT):
             raise InvalidDirectionException(pin)
+
+        if edge and edge not in (self.RISING, self.FALLING, self.BOTH):
+            raise InvalidEdgeException(pin)
 
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, self.__EXPORT)
