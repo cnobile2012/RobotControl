@@ -31,8 +31,10 @@ class ConfigLogger(object):
     _DEFAULT_FORMAT = ("%(asctime)s %(levelname)s %(module)s %(funcName)s "
                        "[line:%(lineno)d] %(message)s")
 
-    def __init__(self, logPath):
-        self._logPath = logPath.rstrip('/')
+    def __init__(self, logPath=None):
+        if logPath:
+            self._logPath = logPath.rstrip('/')
+
         self._format = self._DEFAULT_FORMAT
 
     def config(self, loggerName, filename=None, level=logging.INFO):

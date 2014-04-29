@@ -24,7 +24,8 @@ class GPIO(BaseGPIO):
     _UEVENT = 'uevent'
     _VALUE = 'value'
 
-    def __init__(self):
+    def __init__(self, log=None):
+        super(GPIO, self).__init__(log)
         self.__exportedPins = set()
 
     def setPinMode(self, pin, direction=None, edge=None):
