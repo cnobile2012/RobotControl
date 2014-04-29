@@ -8,8 +8,6 @@ from .logging_config import getBasePath, ConfigLogger
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidArgumentsException)
 
-log = ConfigLogger(getBasePath()).config('motor-control', level=logging.DEBUG)
-
 
 class BaseGPIO(object):
     __DIRS_RE = re.compile(r'^gpio\d{1,3}/$')
@@ -33,8 +31,11 @@ class BaseGPIO(object):
         80, 81, 86, 87, 88, 89, 117, 120, 121, 122, 123, 125)
     _GPIO_PATH = '/sys/class/gpio'
 
-    def __init__(self):
-        pass
+    def __init__(self, log=None):
+        if not log:
+            self._log = ConfigLogger(getBasePath()).config(level=logging.DEBUG)
+        else:
+            self._log = log
 
     def _exportPin(self, gpioId):
         result = False
@@ -45,7 +46,7 @@ class BaseGPIO(object):
             self._writePin(path, gpioId)
             result = True
 
-        log.debug("result: %s, path: %s", result, path)
+        self._log.debug("result: %s, path: %s", result, path)
         return result
 
     def _unexportPin(self, gpioId):
@@ -57,7 +58,7 @@ class BaseGPIO(object):
             self._writePin(path, gpioId)
             result = True
 
-        log.debug("result: %s, path: %s", result, path)
+        self._log.debug("result: %s, path: %s", result, path)
         return result
 
     def cleanup(self, pin=None):
@@ -75,7 +76,7 @@ class BaseGPIO(object):
     def _findActivePins(self):
         dirs = dircache.listdir(self._GPIO_PATH)
         dircache.annotate(self._GPIO_PATH, dirs)
-        log.debug("dirs: %s", dirs)
+        self._log.debug("dirs: %s", dirs)
         return [d[4:-1] for d in dirs if self.__DIRS_RE.search(d)]
 
     def _getGpioId(self, pin):
