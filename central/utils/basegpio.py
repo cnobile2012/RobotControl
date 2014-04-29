@@ -1,16 +1,14 @@
 #
 # central/utils/basegpio.py
 #
-from __future__ import absolute_import
-import re, os, dircache
 
-#from . import getBasePath
-from .logging_config import ConfigLogger
+import re, os, dircache, logging
+
+from .logging_config import getBasePath, ConfigLogger
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidArgumentsException)
 
-#log = ConfigLogger(getBasePath()).config(
-#    'motor-control', level=logging.DEBUG)
+log = ConfigLogger(getBasePath()).config('motor-control', level=logging.DEBUG)
 
 
 class BaseGPIO(object):

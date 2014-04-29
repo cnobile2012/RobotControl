@@ -20,6 +20,10 @@ import os
 import logging
 
 
+def getBasePath():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+
 class ConfigLogger(object):
     """
     Setup some basic logging. This could get more sophisticated in the future.

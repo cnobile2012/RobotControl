@@ -20,7 +20,7 @@ SOFTWARE.
 import os
 import logging
 
-from .logging_config import ConfigLogger
+from .logging_config import getBasePath, ConfigLogger
 
 from .exceptions import *
 from .gpio import GPIO
@@ -38,32 +38,29 @@ def isRootUser(logger=''):
     return result
 
 
-def getBasePath():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+def setupMultiplePins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
+    """
+    Sets up a range of pins to a specified direction. (GPIO.IN or GPIO.OUT)
+    """
+    validHeaders = (8, 9)
+    validDir = (GPIO.IN, GPIO.OUT)
 
+    if pinHeader not in validHeaders:
+        raise TypeError("Invalid header number {} must be one of {}.".format(
+            pinHeader, validHeaders))
 
-#def setupMultiplePins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
-#    """
-#    Sets up a range of pins to a specified direction. (GPIO.IN or GPIO.OUT)
-#    """
-#    validHeaders = (8, 9)
-#    validDir = (GPIO.IN, GPIO.OUT)
+    if direction not in validDir:
+        raise TypeError("Invalid pin direction {} must be one of {}.".format(
+            direction, validDir))
 
-#    if pinHeader not in validHeaders:
-#        raise TypeError("Invalid header number {} must be one of {}.".format(
-#            pinHeader, validHeaders))
-
-#    if direction not in validDir:
-#        raise TypeError("Invalid pin direction {} must be one of {}.".format(
-#            direction, validDir))
-
-#    for idx in range(pinRange):
-#        pin = startPin + idx
-#        channel = "P{}_{}".format(pinHeader, pin)
+    for idx in range(pinRange):
+        pin = startPin + idx
+        channel = "P{}_{}".format(pinHeader, pin)
         #print channel, direction
-#        GPIO.setup(channel, direction)
+        GPIO.setup(channel, direction)
 
 
-__all__ = ['isRootUser', 'getBasePath', 'GPIO', 'ConfigLogger',
+__all__ = ['isRootUser', 'GPIO', 'getBasePath', 'ConfigLogger',
+           'setupMultiplePins',
            'InvalidPinNomenclatureException', 'InvalidDirectionException',
            'InvalidEdgeException', 'InvalidArgumentsException']
