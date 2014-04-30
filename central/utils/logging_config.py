@@ -37,7 +37,7 @@ class ConfigLogger(object):
 
         self._format = self._DEFAULT_FORMAT
 
-    def config(self, loggerName, filename=None, level=logging.INFO):
+    def config(self, loggerName=None, filename=None, level=logging.INFO):
         """
         loggerName is not used yet.
         """
@@ -46,9 +46,7 @@ class ConfigLogger(object):
         else:
             filePath = None
 
-        return logging.basicConfig(filename=filePath, format=self._format,
-                                   level=level)
-
+        logging.basicConfig(filename=filePath, format=self._format, level=level)
 
     def setFormat(self, fmt=None, default=_DEFAULT_FORMAT):
         """

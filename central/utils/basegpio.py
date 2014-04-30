@@ -31,11 +31,13 @@ class BaseGPIO(object):
         80, 81, 86, 87, 88, 89, 117, 120, 121, 122, 123, 125)
     _GPIO_PATH = '/sys/class/gpio'
 
-    def __init__(self, log=None):
-        if not log:
-            self._log = ConfigLogger(getBasePath()).config(level=logging.DEBUG)
-        else:
-            self._log = log
+    def __init__(self, logger=None, level=logging.DEBUG):
+        if not logger:
+            ConfigLogger().config(level=level)
+            logger = ''
+
+        self._log = logging.getLogger(logger)
+        self._log.setLevel(level)
 
     def _exportPin(self, gpioId):
         result = False
@@ -81,6 +83,7 @@ class BaseGPIO(object):
 
     def _getGpioId(self, pin):
         result = 0
+        self._log.debug("pin: %s", pin)
 
         if not isinstance(pin, basestring):
             raise InvalidPinNomenclatureException(pin)
@@ -102,6 +105,7 @@ class BaseGPIO(object):
         if result not in self.__VALID_PINS:
             raise InvalidPinNomenclatureException(pin)
 
+        self._log.debug("result: %s", result)
         return result
 
     def _readPin(self, path, bytes=128):

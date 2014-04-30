@@ -2,7 +2,7 @@
 # central/utils/gpio.py
 #
 
-import os
+import os, logging
 
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidDirectionException,
@@ -24,8 +24,8 @@ class GPIO(BaseGPIO):
     _UEVENT = 'uevent'
     _VALUE = 'value'
 
-    def __init__(self, log=None):
-        super(GPIO, self).__init__(log)
+    def __init__(self, logger=None, level=logging.DEBUG):
+        super(GPIO, self).__init__(logger=logger, level=level)
         self.__exportedPins = set()
 
     def setPinMode(self, pin, direction=None, edge=None):
@@ -39,6 +39,9 @@ class GPIO(BaseGPIO):
         pull      -- Set the internal resister to pull up (GPIO.PULLUP) or pull
                      down (GPIO.PULLDOWN) or neither (GPIO.PULLNONE) is default.
         """
+        self._log.debug("pin: %s, direction: %s, edge: %s",
+                        pin, direction, edge)
+
         if direction and direction not in (self.IN, self.OUT):
             raise InvalidDirectionException(pin)
 
