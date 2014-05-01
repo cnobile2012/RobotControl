@@ -101,4 +101,4 @@ class GPIO(BaseGPIO):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
-        return self._readPin(path)
+        return int(self._readPin(path))
