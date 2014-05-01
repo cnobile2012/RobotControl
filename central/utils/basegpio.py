@@ -2,7 +2,7 @@
 # central/utils/basegpio.py
 #
 
-import re, os, dircache, logging
+import re, os, logging
 
 from .logging_config import getBasePath, ConfigLogger
 from .exceptions import (
@@ -10,7 +10,7 @@ from .exceptions import (
 
 
 class BaseGPIO(object):
-    __DIRS_RE = re.compile(r'^gpio\d{1,3}/$')
+    __DIRS_RE = re.compile(r'^gpio\d{1,3}$')
     __EXPORT = 'export'
     __UNEXPORT = 'unexport'
     __PIN_MAP = {8: { 3: 38,  4: 39,  5: 34,  6: 35,  7: 66,  8: 67,  9: 69,
@@ -76,10 +76,11 @@ class BaseGPIO(object):
         return result
 
     def _findActivePins(self):
-        dirs = dircache.listdir(self._GPIO_PATH)
-        dircache.annotate(self._GPIO_PATH, dirs)
+        dirs = os.listdir(self._GPIO_PATH)
+        dirs = [f for f in dirs
+                if os.path.isdir(os.path.join(self._GPIO_PATH, f))]
         self._log.debug("dirs: %s", dirs)
-        return [d[4:-1] for d in dirs if self.__DIRS_RE.search(d)]
+        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
 
     def _getGpioId(self, pin):
         result = 0
@@ -112,7 +113,7 @@ class BaseGPIO(object):
         fd = os.open(path, os.O_RDONLY)
         result = os.read(fd, bytes)
         os.close(fd)
-        return result
+        return result.strip()
 
     def _writePin(self, path, value):
         value = str(value)
