@@ -51,7 +51,7 @@ class BaseGPIO(object):
         self._log = logging.getLogger(logger)
         self._log.setLevel(level)
 
-    def _exportPin(self, gpioId):
+    def _export(self, gpioId):
         result = False
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId))
 
@@ -63,7 +63,7 @@ class BaseGPIO(object):
         self._log.debug("result: %s, path: %s", result, path)
         return result
 
-    def _unexportPin(self, gpioId):
+    def _unexport(self, gpioId):
         result = False
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId))
 
@@ -80,8 +80,8 @@ class BaseGPIO(object):
 
         if pin is not None:
             gpioId = self._getGpioId(pin)
-            result = self._unexportPin(gpioId)
-        elif any([self._unexportPin(gpioId)
+            result = self._unexport(gpioId)
+        elif any([self._unexport(gpioId)
                   for gpioId in self._findActivePins()]):
             result = True
 
@@ -138,5 +138,8 @@ class BaseGPIO(object):
                               "should have been: {}".format(
                                   path, numBytes, len(value)))
 
-    def _interrupt(self, edge=None):
-        pass
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()

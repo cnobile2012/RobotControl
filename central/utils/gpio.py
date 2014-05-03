@@ -27,9 +27,9 @@ class GPIO(BaseGPIO):
     def __init__(self, logger=None, level=logging.DEBUG):
         super(GPIO, self).__init__(logger=logger, level=level)
 
-    def setPinMode(self, pin, direction=None, edge=None):
+    def setMode(self, pin, direction=None, edge=None):
         """
-        Sets digital pin mode. If previously no exported this method shall
+        Sets digital pin mode. If previously not exported this method shall
         return 'True' else if already exported the return value shall be
         'False' unless either or both direction or edge is passed in, in which
         case the return value shall be 'True'.
@@ -51,7 +51,7 @@ class GPIO(BaseGPIO):
             raise InvalidEdgeException(pin)
 
         gpioId = self._getGpioId(pin)
-        result = self._exportPin(gpioId)
+        result = self._export(gpioId)
 
         if direction:
             path = os.path.join(
@@ -67,37 +67,37 @@ class GPIO(BaseGPIO):
 
         return result
 
-    def setPinDirection(self, pin, direction):
+    def setDirection(self, pin, direction):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
         self._write(path, direction)
 
-    def getPinDirection(self, pin):
+    def getDirection(self, pin):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
         return self._readPin(path)
 
-    def setPinEdge(self, pin, edge):
+    def setEdge(self, pin, edge):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._EDGE)
         self._write(path, edge)
 
-    def getPinEdge(self, pin):
+    def getEdge(self, pin):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._EDGE)
         return self._readPin(path)
 
-    def setPinValue(self, pin, value):
+    def setValue(self, pin, value):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
         self._write(path, value)
 
-    def getPinValue(self, pin):
+    def getValue(self, pin):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
