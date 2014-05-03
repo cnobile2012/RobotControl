@@ -3,10 +3,22 @@
 #
 
 import re, os, logging
+import select
 
 from .logging_config import getBasePath, ConfigLogger
 from .exceptions import (
     InvalidPinNomenclatureException, InvalidArgumentsException)
+
+
+class OpenCM(object):
+    def __init__(self, fd):
+        self.fd = fd
+
+    def __enter__(self):
+        return self.fd
+
+    def __exit__(self, type, value, traceback):
+        os.close(self.fd)
 
 
 class BaseGPIO(object):
@@ -110,18 +122,21 @@ class BaseGPIO(object):
         return result
 
     def _readPin(self, path, bytes=128):
-        fd = os.open(path, os.O_RDONLY)
-        result = os.read(fd, bytes)
-        os.close(fd)
+        with OpenCM(os.open(path, os.O_RDONLY)) as fd:
+            result = os.read(fd, bytes)
+
         return result.strip()
 
     def _writePin(self, path, value):
         value = str(value)
-        fd = os.open(path, os.O_WRONLY)
-        numBytes = os.write(fd, value)
-        os.close(fd)
 
-        if numBytes != len(value):
-            raise IOError("Wrong number of bytes witten to {}, wrote: {}, "
-                          "should have been: {}".format(
-                              path, numBytes, len(value)))
+        with OpenCM(os.open(path, os.O_WRONLY)) as fd:
+            numBytes = os.write(fd, value)
+
+            if numBytes != len(value):
+                raise IOError("Wrong number of bytes witten to {}, wrote: {}, "
+                              "should have been: {}".format(
+                                  path, numBytes, len(value)))
+
+    def _interrupt(self, edge=None):
+        pass
