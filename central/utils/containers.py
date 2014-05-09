@@ -40,7 +40,7 @@ class Pin(BaseGPIO, BaseContainer):
 
     @property
     def is_closed(self):
-        return self._fd and True or False
+        return self._fd and False or True
 
     def fileno(self):
         return self._fd
