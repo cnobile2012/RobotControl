@@ -62,6 +62,6 @@ def setupMultiplePins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
 
 
 __all__ = ['isRootUser', 'GPIO', 'getBasePath', 'ConfigLogger',
-           'setupMultiplePins',
+           'setupMultiplePins', 'Pin',
            'InvalidPinNomenclatureException', 'InvalidDirectionException',
            'InvalidEdgeException', 'InvalidArgumentsException']
