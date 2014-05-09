@@ -51,6 +51,13 @@ class BaseGPIO(object):
         self._log = logging.getLogger(logger)
         self._log.setLevel(level)
 
+    def _findActivePins(self):
+        dirs = os.listdir(self._GPIO_PATH)
+        dirs = [f for f in dirs
+                if os.path.isdir(os.path.join(self._GPIO_PATH, f))]
+        self._log.debug("dirs: %s", dirs)
+        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
+
     def _export(self, gpioId):
         result = False
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId))

@@ -73,18 +73,10 @@ class GPIO(BaseGPIO):
         if pin is not None:
             gpioId = self._getGpioId(pin)
             result = self._unexport(gpioId)
-        elif any([self._unexport(gpioId)
-                  for gpioId in self.__findActivePins()]):
+        elif any([self._unexport(gpioId) for gpioId in self._findActivePins()]):
             result = True
 
         return result
-
-    def __findActivePins(self):
-        dirs = os.listdir(self._GPIO_PATH)
-        dirs = [f for f in dirs
-                if os.path.isdir(os.path.join(self._GPIO_PATH, f))]
-        self._log.debug("dirs: %s", dirs)
-        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
 
     def setDirection(self, pin, direction):
         gpioId = self._getGpioId(pin)
