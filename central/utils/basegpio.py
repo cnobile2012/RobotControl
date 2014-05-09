@@ -75,25 +75,6 @@ class BaseGPIO(object):
         self._log.debug("result: %s, path: %s", result, path)
         return result
 
-    def cleanup(self, pin=None):
-        result = False
-
-        if pin is not None:
-            gpioId = self._getGpioId(pin)
-            result = self._unexport(gpioId)
-        elif any([self._unexport(gpioId)
-                  for gpioId in self._findActivePins()]):
-            result = True
-
-        return result
-
-    def _findActivePins(self):
-        dirs = os.listdir(self._GPIO_PATH)
-        dirs = [f for f in dirs
-                if os.path.isdir(os.path.join(self._GPIO_PATH, f))]
-        self._log.debug("dirs: %s", dirs)
-        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
-
     def _getGpioId(self, pin):
         result = 0
         self._log.debug("pin: %s", pin)
@@ -101,6 +82,7 @@ class BaseGPIO(object):
         if not isinstance(pin, basestring):
             raise InvalidPinNomenclatureException(pin)
 
+        pin = pin.count('.') == 1 and pin.replace('.', '_') or pin
         head, delimiter, tail = pin.partition('_')
         head = head.upper()
 
@@ -138,8 +120,5 @@ class BaseGPIO(object):
                               "should have been: {}".format(
                                   path, numBytes, len(value)))
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.cleanup()
+    def _openPin(self, path):
+        return os.open(path, os.O_RDONLY)

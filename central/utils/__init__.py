@@ -24,6 +24,7 @@ from .logging_config import getBasePath, ConfigLogger
 
 from .exceptions import *
 from .gpio import GPIO
+from .containers import Pin
 
 
 def isRootUser(logger=''):

@@ -67,6 +67,25 @@ class GPIO(BaseGPIO):
 
         return result
 
+    def cleanup(self, pin=None):
+        result = False
+
+        if pin is not None:
+            gpioId = self._getGpioId(pin)
+            result = self._unexport(gpioId)
+        elif any([self._unexport(gpioId)
+                  for gpioId in self.__findActivePins()]):
+            result = True
+
+        return result
+
+    def __findActivePins(self):
+        dirs = os.listdir(self._GPIO_PATH)
+        dirs = [f for f in dirs
+                if os.path.isdir(os.path.join(self._GPIO_PATH, f))]
+        self._log.debug("dirs: %s", dirs)
+        return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
+
     def setDirection(self, pin, direction):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
@@ -102,3 +121,9 @@ class GPIO(BaseGPIO):
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
         return int(self._readPin(path))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cleanup()
