@@ -18,11 +18,6 @@ class GPIO(BaseGPIO):
     BOTH = 'both'
     HIGH = 1
     LOW = 0
-    _ACTIVE_LOW = 'active_low'
-    _DIRECTION = 'direction'
-    _EDGE = 'edge'
-    _UEVENT = 'uevent'
-    _VALUE = 'value'
 
     def __init__(self, logger=None, level=logging.DEBUG):
         super(GPIO, self).__init__(logger=logger, level=level)

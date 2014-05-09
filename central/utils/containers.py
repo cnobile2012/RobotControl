@@ -5,7 +5,7 @@
 import os, logging
 
 
-from .gpio import GPIO
+from .gpio import BaseGPIO
 
 
 class BaseContainer(object):
@@ -17,17 +17,17 @@ class BaseContainer(object):
         self.close()
 
 
-class Pin(GPIO, BaseContainer):
+class Pin(BaseGPIO, BaseContainer):
 
     def __init__(self, pin, logger=None, level=logging.DEBUG):
         super(Pin, self).__init__(logger=logger, level=level)
         self._pin = pin
         self._gpioId = self._getGpioId(pin)
-        self._fd = self.open()
+        self._fd = self._open()
         self._direction = ""
         self._edge = ""
 
-    def open(self):
+    def _open(self):
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(self._gpioId),
                             self._VALUE)
         return self._openPin(path)
@@ -48,13 +48,17 @@ class Pin(GPIO, BaseContainer):
     @property
     def direction(self):
         if not self._direction:
-            self._direction = self.getDirection(self._pin)
+            path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(self._gpioId),
+                                self._DIRECTION)
+            self._direction = self._readPin(path)
 
         return self._direction
 
     @property
     def edge(self):
         if not self._edge:
-            self._edge = self.getEdge(self._pin)
+            path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(self._gpioId),
+                                self._EDGE)
+            self._edge = self._readPin(path)
 
         return self._edge

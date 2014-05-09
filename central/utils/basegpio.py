@@ -42,6 +42,11 @@ class BaseGPIO(object):
         62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
         80, 81, 86, 87, 88, 89, 117, 120, 121, 122, 123, 125)
     _GPIO_PATH = '/sys/class/gpio'
+    _ACTIVE_LOW = 'active_low'
+    _DIRECTION = 'direction'
+    _EDGE = 'edge'
+    _UEVENT = 'uevent'
+    _VALUE = 'value'
 
     def __init__(self, logger=None, level=logging.DEBUG):
         if not logger:
