@@ -19,6 +19,8 @@ class BaseContainer(object):
 
 class Pin(BaseGPIO, BaseContainer):
 
+    __trigger__ = 'EDGE'
+
     def __init__(self, pin, logger=None, level=logging.DEBUG):
         super(Pin, self).__init__(logger=logger, level=level)
         self._pin = pin

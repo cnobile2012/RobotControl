@@ -2,7 +2,7 @@
 # central/utils/event.py
 #
 
-import select
+import select, subprocess
 
 
 class Event(object):
@@ -28,8 +28,11 @@ class Event(object):
     def fileno(self):
         return self._getEpoll().fileno()
 
-    def register(self, fd, eventmask=INPUT|ERROR, trigger=None,
-                 identifier=None):
-        self._queue[fd] = identifier
+    def register(self, container, eventmask=INPUT|ERROR, trigger=None,
+                 identifier=None):=
+        self._queue[fd] = identifier/
         trigger = trigger and trigger or self.LEVEL
-        self._getEpoll().register(fd, eventmask)
+        self._getEpoll().register(container.fileno(), eventmask)
+
+    def unregester(self, container):
+        self._getEpoll().unregester(container.fileno())
