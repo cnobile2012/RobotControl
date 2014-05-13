@@ -29,8 +29,8 @@ class Event(object):
         return self._getEpoll().fileno()
 
     def register(self, container, eventmask=INPUT|ERROR, trigger=None,
-                 identifier=None):=
-        self._queue[fd] = identifier/
+                 identifier=None):
+        self._queue[fd] = identifier
         trigger = trigger and trigger or self.LEVEL
         self._getEpoll().register(container.fileno(), eventmask)
 

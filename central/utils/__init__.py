@@ -25,6 +25,7 @@ from .logging_config import getBasePath, ConfigLogger
 from .exceptions import *
 from .gpio import GPIO
 from .containers import Pin
+from .events import Event
 
 
 def isRootUser(logger=''):
@@ -62,6 +63,6 @@ def setupMultiplePins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
 
 
 __all__ = ['isRootUser', 'GPIO', 'getBasePath', 'ConfigLogger',
-           'setupMultiplePins', 'Pin',
+           'setupMultiplePins', 'Pin', 'Event',
            'InvalidPinNomenclatureException', 'InvalidDirectionException',
            'InvalidEdgeException', 'InvalidArgumentsException']
