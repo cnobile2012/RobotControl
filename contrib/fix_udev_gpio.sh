@@ -9,4 +9,5 @@ find /sys/devices/virtual/gpio -name "control" -exec chmod 0660 {} \;
 
 # Fix the /sys/class/gpio path.
 chown -R debian:gpio /sys/class/gpio
-chmod 0220 export unexport
+chmod 0220 /sys/class/gpio/export
+chmod 0220 /sys/class/gpio/unexport
