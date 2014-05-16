@@ -1,3 +1,11 @@
 # Install in: /etc/udev/rules.d/
-KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'chown -R debian:gpio /sys/class/gpio'", MODE=0664
-KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'chown -R debian:gpio /sys/devices/virtual/gpio/'", MODE=0664
+
+# Fix the /sys/devices/virtual/gpio path.
+KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'chown -R debian:gpio /sys/devices/virtual/gpio/'"
+KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'find /sys/devices/virtual/gpio -type d -exec chmod 2775 {} \;'"
+KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'find /sys/devices/virtual/gpio -type f -exec chmod 0660 {} \;'"
+
+# Fix the /sys/class/gpio path.
+KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'chown -R debian:gpio /sys/class/gpio'"
+KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'find /sys/class/gpio -type d -exec chmod 2775 {} \;'"
+KERNEL=="gpio*", SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'find /sys/class/gpio -type f -exec chmod 0220 {} \;'"
