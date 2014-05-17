@@ -47,7 +47,7 @@ class GPIO(BaseGPIO):
 
         gpioId = self._getGpioId(pin)
         result = self._export(gpioId)
-        self.waitForFile()
+        self._waitForFile()
 
         if direction:
             path = os.path.join(

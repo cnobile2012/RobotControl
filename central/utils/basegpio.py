@@ -3,7 +3,7 @@
 #
 
 import re, os
-import threading, logging
+import time, logging
 
 from .logging_config import getBasePath, ConfigLogger
 from .exceptions import (
@@ -71,9 +71,9 @@ class BaseGPIO(object):
         self._log.debug("dirs: %s", dirs)
         return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
 
-    def _waitForFile(self, gpioId):
+    def _waitForFile(self):
         if not self.isRootUser():
-            threading.wait(0.1)
+            time.sleep(0.5)
 
     def _export(self, gpioId):
         result = False
