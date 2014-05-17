@@ -90,7 +90,7 @@ class GPIO(BaseGPIO):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
-        self._write(path, direction)
+        self._writePin(path, direction)
 
     def getDirection(self, pin):
         gpioId = self._getGpioId(pin)
@@ -102,7 +102,7 @@ class GPIO(BaseGPIO):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._EDGE)
-        self._write(path, edge)
+        self._writePin(path, edge)
 
     def getEdge(self, pin):
         gpioId = self._getGpioId(pin)
@@ -114,7 +114,7 @@ class GPIO(BaseGPIO):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
-        self._write(path, value)
+        self._writePin(path, value)
 
     def getValue(self, pin):
         gpioId = self._getGpioId(pin)

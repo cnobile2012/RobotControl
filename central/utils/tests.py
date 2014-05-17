@@ -55,13 +55,13 @@ class TestGPIO(unittest.TestCase):
         # Test setMode with only first argument.
         pin = u'gpio_44'
         self.gpio.setMode(pin)
-        result = self.getDirection(pin)
-        self.assertTrue(result == 'out', msg=u"Invalid pin direction, found: "
+        result = self.gpio.getDirection(pin)
+        self.assertTrue(result == u'in', msg=u"Invalid pin direction, found: "
                         u"'{}', should have been: 'out'".format(result))
-        result = self.getEdge(pin)
-        self.assertTrue(result == 'both', msg=u"Invalid pin edge, found: "
+        result = self.gpio.getEdge(pin)
+        self.assertTrue(result == u'none', msg=u"Invalid pin edge, found: "
                         u"'{}', should have been: 'both'".format(result))
-        result = self.getValue(pin)
+        result = self.gpio.getValue(pin)
         self.assertTrue(result == 0, msg=u"Invalid pin value, found: "
                         u"'{}', should have been: '0'".format(result))
 
@@ -74,20 +74,20 @@ class TestGPIO(unittest.TestCase):
             for edge in edges:
                 kwargs = {u'direction': direction, u'edge': edge}
                 self.gpio.setMode(pin, **kwargs)
-                d = self.getDirection(pin)
+                d = self.gpio.getDirection(pin)
                 self.assertTrue(d == direction, msg=u"Invalid direction, "
                                 u"found: {}, should have been: {}.".format(
                                     d, direction))
-                e = self.getEdge(pin)
+                e = self.gpio.getEdge(pin)
                 self.assertTrue(e == edge, msg=u"Invalid edge, found: {}, "
-                                u"should have been: {}.".format(e, edge)))
-                self.cleanup(pin)
+                                u"should have been: {}.".format(e, edge))
+                self.gpio.cleanup(pin)
 
     def test_setDirection(self):
         pin = u'gpio_30'
         self.gpio.setMode(pin)
         self.gpio.setDirection(pin, GPIO.IN)
-        d = self.getDirection(pin)
+        d = self.gpio.getDirection(pin)
         self.assertTrue(d == GPIO.IN, msg=u"Invalid direction, found: {}, "
                         u"should have been: {}.".format(d, GPIO.IN))
 
@@ -95,17 +95,17 @@ class TestGPIO(unittest.TestCase):
         pin = u'gpio_30'
         self.gpio.setMode(pin)
         self.gpio.setEdge(pin, GPIO.FALLING)
-        e = self.getEdge(pin)
+        e = self.gpio.getEdge(pin)
         self.assertTrue(e == GPIO.FALLING, msg=u"Invalid edge, found: {}, "
                         u"should have been: {}.".format(e, GPIO.FALLING))
 
     def test_setValue(self):
         pin = u'gpio_30'
-        self.gpio.setMode(pin)
-        self.gpio.setValue(pin, 1)
-        e = self.getValue(pin)
-        self.assertTrue(e == GPIO.HIGH, msg=u"Invalid value, found: {}, "
-                        u"should have been: {}.".format(e, GPIO.HIGH))
+        self.gpio.setMode(pin, direction=GPIO.OUT)
+        self.gpio.setValue(pin, GPIO.LOW)
+        e = self.gpio.getValue(pin)
+        self.assertTrue(e == GPIO.LOW, msg=u"Invalid value, found: {}, "
+                        u"should have been: {}.".format(e, GPIO.LOW))
 
 
 if __name__ == '__main__':
