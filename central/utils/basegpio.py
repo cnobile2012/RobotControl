@@ -71,9 +71,9 @@ class BaseGPIO(object):
         self._log.debug("dirs: %s", dirs)
         return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
 
-    def _waitForFile(self):
+    def _waitForFile(self, timeout=0.5):
         if not self.isRootUser():
-            time.sleep(0.5)
+            time.sleep(timeout)
 
     def _export(self, gpioId):
         result = False
