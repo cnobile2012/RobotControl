@@ -31,7 +31,7 @@ class GPIO(BaseGPIO):
     HIGH = 1
     LOW = 0
 
-    def __init__(self, logger=None, level=logging.DEBUG):
+    def __init__(self, logger=None, level=logging.INFO):
         super(GPIO, self).__init__(logger=logger, level=level)
 
     def setMode(self, pin, direction=None, edge=None):

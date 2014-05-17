@@ -52,7 +52,7 @@ class BaseGPIO(object):
         2, 3, 4, 5, 7, 8, 9, 10, 11, 14, 15, 20, 22, 23, 26, 27, 30, 31, 32,
         33, 34, 35, 36, 37, 38, 39, 40, 44, 45, 46, 47, 48, 49, 51, 60, 61,
         62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-        80, 81, 86, 87, 88, 89, 117, 120, 121, 122, 123, 125)
+        80, 81, 86, 87, 88, 89, 115, 117, 120, 121, 122, 123)
     _GPIO_PATH = '/sys/class/gpio'
     _ACTIVE_LOW = 'active_low'
     _DIRECTION = 'direction'
@@ -60,7 +60,7 @@ class BaseGPIO(object):
     _UEVENT = 'uevent'
     _VALUE = 'value'
 
-    def __init__(self, logger=None, level=logging.DEBUG):
+    def __init__(self, logger=None, level=logging.INFO):
         if not logger:
             ConfigLogger().config(level=level)
             logger = ''
@@ -69,12 +69,7 @@ class BaseGPIO(object):
         self._log.setLevel(level)
 
     def isRootUser(self):
-        result = True
-
-        if os.getuid() != 0:
-            result = False
-
-        return result
+        return os.getuid() == 0
 
     def _findActivePins(self):
         dirs = os.listdir(self._GPIO_PATH)
