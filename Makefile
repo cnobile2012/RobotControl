@@ -18,7 +18,8 @@ tar	: clean
 
 tests	:
 	(export PYTHONPATH=$(PREFIX); \
-         python central/rotaryencoder/rotary_encoder.py)
+         python central/utils/tests.py; \
+        )
 
 #----------------------------------------------------------------------
 
