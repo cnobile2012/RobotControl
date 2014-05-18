@@ -15,7 +15,7 @@ SOFTWARE.
 """
 
 import re, os
-import logging
+import time, logging
 
 from .logging_config import getBasePath, ConfigLogger
 from .exceptions import (
@@ -78,14 +78,9 @@ class BaseGPIO(object):
         self._log.debug("dirs: %s", dirs)
         return [d[4:] for d in dirs if self.__DIRS_RE.search(d)]
 
-    def _waitForFile(self, path):
+    def _waitForFile(self, timeout=0.5):
         if not self.isRootUser():
-            while os.path.exists(path):
-                with OpenCM(os.open(path, os.O_WRONLY)) as fd:
-                    mode = os.fstat(fd).st_mode
-
-                    while not (mode & 0x10):
-                        mode = os.fstat(fd).st_mode
+            time.sleep(timeout)
 
     def _export(self, gpioId):
         result = False

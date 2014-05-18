@@ -52,6 +52,9 @@ class GPIO(BaseGPIO):
                         pin, direction, edge)
         gpioId = self._getGpioId(pin)
         result = self._export(gpioId)
+        # Need to wait even if no direction or edge as they can be set
+        # immediately after this call. TO-DO Find a better way to do this.
+        self._waitForFile(timeout=0.3)
 
         if direction:
             if direction not in (self.IN, self.OUT):
@@ -59,7 +62,6 @@ class GPIO(BaseGPIO):
 
             path = os.path.join(
                 self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
-            self._waitForFile(path)
             self._writePin(path, direction)
             result = True
 
@@ -69,7 +71,6 @@ class GPIO(BaseGPIO):
 
             path = os.path.join(
                 self._GPIO_PATH, 'gpio{}'.format(gpioId), self._EDGE)
-            self._waitForFile(path)
             self._writePin(path, edge)
             result = True
 
@@ -90,42 +91,36 @@ class GPIO(BaseGPIO):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
-        self._waitForFile(path)
         self._writePin(path, direction)
 
     def getDirection(self, pin):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
-        self._waitForFile(path)
         return self._readPin(path)
 
     def setEdge(self, pin, edge):
         gpioId = self._getGpioId(pin)
         path = os.path.join(
             self._GPIO_PATH, 'gpio{}'.format(gpioId), self._EDGE)
-        self._waitForFile(path)
         self._writePin(path, edge)
 
     def getEdge(self, pin):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._EDGE)
-        self._waitForFile(path)
         return self._readPin(path)
 
     def setValue(self, pin, value):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
-        self._waitForFile(path)
         self._writePin(path, value)
 
     def getValue(self, pin):
         gpioId = self._getGpioId(pin)
         path = os.path.join(self._GPIO_PATH, 'gpio{}'.format(gpioId),
                             self._VALUE)
-        self._waitForFile(path)
         return int(self._readPin(path))
 
     def __enter__(self):
