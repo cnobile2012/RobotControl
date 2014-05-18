@@ -17,7 +17,7 @@ tar	: clean
           --exclude=".gitignore" $(PACKAGE_DIR))
 
 tests	:
-	(export PYTHONPATH=$(PREFIX); \
+	@(export PYTHONPATH=$(PREFIX); \
          python central/utils/tests.py; \
         )
 
