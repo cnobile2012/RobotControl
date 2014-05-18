@@ -39,7 +39,7 @@ class GPIO(BaseGPIO):
         Sets digital pin mode. If previously not exported this method shall
         return 'True' else if already exported the return value shall be
         'False' unless either or both direction or edge is passed in, in which
-        case the return value shall be 'True'.
+        case the return value shall be 'True' if no exception is raised.
 
         pin       -- Any of the pin designation types. ex. GPIO1_1, GPIO_33, or
                      P8_24.
@@ -50,24 +50,25 @@ class GPIO(BaseGPIO):
         """
         self._log.debug("pin: %s, direction: %s, edge: %s",
                         pin, direction, edge)
-
-        if direction and direction not in (self.IN, self.OUT):
-            raise InvalidDirectionException(pin)
-
-        if edge and edge not in (self.RISING, self.FALLING, self.BOTH):
-            raise InvalidEdgeException(pin)
-
         gpioId = self._getGpioId(pin)
         result = self._export(gpioId)
-        self._waitForFile()
+
+        if direction or edge:
+            self._waitForFile()
 
         if direction:
+            if direction not in (self.IN, self.OUT):
+                raise InvalidDirectionException(pin)
+
             path = os.path.join(
                 self._GPIO_PATH, 'gpio{}'.format(gpioId), self._DIRECTION)
             self._writePin(path, direction)
             result = True
 
         if edge:
+            if edge not in (self.RISING, self.FALLING, self.BOTH):
+                raise InvalidEdgeException(pin)
+
             path = os.path.join(
                 self._GPIO_PATH, 'gpio{}'.format(gpioId), self._EDGE)
             self._writePin(path, edge)

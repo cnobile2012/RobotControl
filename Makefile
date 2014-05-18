@@ -5,7 +5,7 @@
 PREFIX		= $(shell pwd)
 PACKAGE_DIR	= $(shell echo $${PWD\#\#*/})
 #DOCS_DIR	= $(PREFIX)/docs
-#LOGS_DIR	= $(PREFIX)/logs
+LOGS_DIR	= $(PREFIX)/central/logs
 TODAY		= $(shell date +"%Y-%m-%d_%H%M")
 
 #----------------------------------------------------------------------
