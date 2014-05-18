@@ -54,7 +54,7 @@ class GPIO(BaseGPIO):
         result = self._export(gpioId)
         # Need to wait even if no direction or edge as they can be set
         # immediately after this call. TO-DO Find a better way to do this.
-	self._waitForFile()
+	self._waitForFile(timeout=0.3)
 
         if direction:
             if direction not in (self.IN, self.OUT):
