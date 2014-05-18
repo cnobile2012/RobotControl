@@ -80,11 +80,12 @@ class BaseGPIO(object):
 
     def _waitForFile(self, path):
         if not self.isRootUser():
-            with OpenCM(os.open(path, os.O_WRONLY)) as fd:
-                mode = os.fstat(fd).st_mode
-
-                while not (mode & 0x10):
+            while os.path.exists(path):
+                with OpenCM(os.open(path, os.O_WRONLY)) as fd:
                     mode = os.fstat(fd).st_mode
+
+                    while not (mode & 0x10):
+                        mode = os.fstat(fd).st_mode
 
     def _export(self, gpioId):
         result = False
