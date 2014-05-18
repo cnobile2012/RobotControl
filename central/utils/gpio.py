@@ -52,9 +52,9 @@ class GPIO(BaseGPIO):
                         pin, direction, edge)
         gpioId = self._getGpioId(pin)
         result = self._export(gpioId)
-
-        if direction or edge:
-            self._waitForFile()
+        # Need to wait even if no direction or edge as they can be set
+        # immediately after this call. TO-DO Find a better way to do this.
+	self._waitForFile()
 
         if direction:
             if direction not in (self.IN, self.OUT):
