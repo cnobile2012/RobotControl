@@ -42,9 +42,13 @@ class Event(object):
 
     def register(self, container, eventmask=INPUT|ERROR, trigger=None,
                  identifier=None):
-        self._queue[fd] = identifier
-        trigger = trigger and trigger or self.LEVEL
-        self._getEpoll().register(container.fileno(), eventmask)
+        fd = container.fileno()
+        self._queue[fd] = identifier is not None and identifier or container
+        trigger = trigger and trigger or getattr(
+            container, '__trigger__', self.LEVEL)
+        self._getEpoll().register(fd, eventmask|(select.EPOLLET*trigger))
 
     def unregester(self, container):
-        self._getEpoll().unregester(container.fileno())
+        fd = container.fileno()
+        self._getEpoll().unregester(fd)
+        return self._queue.pop(fd)
