@@ -18,7 +18,7 @@ import os, logging
 
 
 from .gpio import BaseGPIO
-from .event import Event
+from .events import Event
 
 
 class BaseContainer(object):
