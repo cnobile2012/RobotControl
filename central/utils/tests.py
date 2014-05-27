@@ -127,6 +127,7 @@ class TestPin(unittest.TestCase):
         self.gpio.setMode(pin)
         cont = Pin(pin, level=logging.DEBUG)
         result = cont.isClosed
+        #print "File number:", cont.fileno()
         self.assertTrue(result == False, msg=u"Pin container property "
                         u"'isClosed' for pin '{}' should be 'False', found "
                         u"'{}'".format(pin, result))
@@ -160,7 +161,7 @@ class TestPin(unittest.TestCase):
             self.gpio.setEdge(pin, e)
 
             with Pin(pin, level=logging.DEBUG) as cont:
-                ce = cont.direction
+                ce = cont.edge
                 ge = self.gpio.getEdge(pin)
                 self.assertTrue(ce == ge, msg=u"Pin container property "
                                 u"'edge' is '{}', should be '{}'".format(
