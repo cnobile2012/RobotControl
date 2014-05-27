@@ -30,6 +30,8 @@ class Event(object):
         self._sizehint = sizehint
         self._epoll = None
         self._queue = {}
+        self._events = {}
+        self._containers = []
 
     def _getEpoll(self):
         if not self._epoll:
@@ -39,6 +41,9 @@ class Event(object):
 
     def fileno(self):
         return self._getEpoll().fileno()
+
+    def close(self):
+        self._epoll is not None and self._epoll.close()
 
     def register(self, container, eventmask=INPUT|ERROR, trigger=None,
                  identifier=None):
@@ -51,4 +56,34 @@ class Event(object):
     def unregester(self, container):
         fd = container.fileno()
         self._getEpoll().unregester(fd)
-        return self._queue.pop(fd)
+        self._events.pop(fd, 0)
+        return self._queue.pop(fd, 0)
+
+    def eventWait(self, timeout=-1):
+        readyEvents = self._getEpoll().poll(timeout, maxevents=1)
+
+        if readyEvents:
+            self._events.update(dict(readyEvents))
+            self._containers[:] = [c for fd, c in self._queue.items()
+                                   if fd in self._events]
+
+    def hasInput(self, container):
+        return bool(self._events.get(container.fileno(), 0) & self.INPUT)
+
+    def hasOutput(self, container):
+        return bool(self._events.get(container.fileno(), 0) & self.OUTPUT)
+
+    def hasError(self, container):
+        return bool(self._events.get(container.fileno(), 0) & self.ERROR)
+
+    def hasHangup(self, container):
+        return bool(self._events.get(container.fileno(), 0) & self.HANGUP)
+
+    def hasPriorityInput(self, container):
+        return bool(self._events.get(container.fileno(), 0) & self.PRI_INPUT)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()

@@ -34,7 +34,7 @@ class Pin(BaseGPIO, BaseContainer):
 
     __trigger__ = Event.EDGE
 
-    def __init__(self, pin, logger=None, level=logging.DEBUG):
+    def __init__(self, pin, logger=None, level=logging.INFO):
         super(Pin, self).__init__(logger=logger, level=level)
         self._pin = pin
         self._gpioId = self._getGpioId(pin)
@@ -54,7 +54,7 @@ class Pin(BaseGPIO, BaseContainer):
         self._edge = ""
 
     @property
-    def is_closed(self):
+    def isClosed(self):
         return self._fd and False or True
 
     def fileno(self):
@@ -77,3 +77,4 @@ class Pin(BaseGPIO, BaseContainer):
             self._edge = self._readPin(path)
 
         return self._edge
+

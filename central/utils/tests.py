@@ -16,6 +16,8 @@ import os, unittest
 from unittest import skip
 
 from central.utils.gpio import GPIO
+from central.utils.events import Event
+from central.utils.containers import Pin
 from central.utils.exceptions import *
 
 
@@ -106,6 +108,86 @@ class TestGPIO(unittest.TestCase):
         e = self.gpio.getValue(pin)
         self.assertTrue(e == GPIO.LOW, msg=u"Invalid value, found: {}, "
                         u"should have been: {}.".format(e, GPIO.LOW))
+
+
+class TestPin(unittest.TestCase):
+
+    def __init__(self, name):
+        super(TestPin, self).__init__(name)
+
+    def setUp(self):
+        self.gpio = GPIO()
+
+    def tearDown(self):
+        self.gpio.cleanup()
+
+    def test_isClosed(self):
+        pin = u'gpio_44'
+        self.gpio.setMode(pin)
+        cont = Pin(pin)
+        result = cont.isClosed
+        self.assertTrue(result == False, msg=u"Pin container property "
+                        u"'isClosed' for pin {} should be False, found "
+                        u"{}".format(pin, result))
+        cont.close()
+        result = cont.isClosed
+        self.assertTrue(result == True, msg=u"Pin container property "
+                        u"'isClosed' for pin {} should be True, found "
+                        u"{}".format(pin, result))
+
+    def test_direction(self):
+        pin = u'gpio_44'
+        directions = (GPIO.OUT, GPIO.IN,)
+        self.gpio.setMode(pin)
+
+        for d in directions:
+            self.gpio.setDirection(pin, d)
+
+            with Pin(pin) as cont:
+                cd = cont.direction
+                gd = self.gpio.getDirection(pin)
+                self.assertTrue(cd == gd, msg=u"Pin container property "
+                                u"'direction' is {}, should be {}".format(
+                                    cd, gd))
+
+    def test_edge(self):
+        pin = u'gpio_44'
+        edges = (GPIO.RISING, GPIO.FALLING, GPIO.BOTH,)
+        self.gpio.setMode(pin)
+
+        for e in edges:
+            self.gpio.setEdge(pin, e)
+
+            with Pin(pin) as cont:
+                ce = cont.direction
+                ge = self.gpio.getEdge(pin)
+                self.assertTrue(ce == ge, msg=u"Pin container property "
+                                u"'edge' is {}, should be {}".format(ce, ge))
+
+
+class TestEvent(unittest.TestCase):
+
+    def __init__(self, name):
+        super(TestEvent, self).__init__(name)
+
+    def setUp(self):
+        self.event = Event()
+        self.gpio = GPIO()
+
+    def tearDown(self):
+        self.event.close()
+        self.gpio.cleanup()
+
+#    def test_register(self):
+#        pin = u'gpio_44'
+#        self.gpio.setMode(pin, direction=GPIO.IN, edge=GPIO.RISING)
+#        cont = Pin(pin)
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
