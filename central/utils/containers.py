@@ -16,7 +16,6 @@ SOFTWARE.
 
 import os, logging
 
-
 from .gpio import BaseGPIO
 from .events import Event
 

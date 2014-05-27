@@ -137,14 +137,18 @@ class BaseGPIO(object):
     def _readPin(self, path, bytes=128):
         with OpenCM(os.open(path, os.O_RDONLY)) as fd:
             result = os.read(fd, bytes)
+            result = result.strip()
+            self._log.debug("Read path '%s' and returned value '%s'.",
+                            path, result)
 
-        return result.strip()
+        return result
 
     def _writePin(self, path, value):
         value = str(value)
 
         with OpenCM(os.open(path, os.O_WRONLY)) as fd:
             numBytes = os.write(fd, value)
+            self._log.debug("Wrote to path '%s' value '%s'.", path, value)
 
             if numBytes != len(value):
                 raise IOError("Wrong number of bytes witten to {}, wrote: {}, "
