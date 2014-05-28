@@ -117,7 +117,7 @@ class TestPin(unittest.TestCase):
         super(TestPin, self).__init__(name)
 
     def setUp(self):
-        self.gpio = GPIO(level=logging.DEBUG)
+        self.gpio = GPIO() #level=logging.DEBUG)
 
     def tearDown(self):
         self.gpio.cleanup()
@@ -125,7 +125,7 @@ class TestPin(unittest.TestCase):
     def test_isClosed(self):
         pin = u'gpio_3'
         self.gpio.setMode(pin)
-        cont = Pin(pin, level=logging.DEBUG)
+        cont = Pin(pin) #, level=logging.DEBUG)
         result = cont.isClosed
         #print "File number:", cont.fileno()
         self.assertTrue(result == False, msg=u"Pin container property "
@@ -145,7 +145,7 @@ class TestPin(unittest.TestCase):
         for d in directions:
             self.gpio.setDirection(pin, d)
 
-            with Pin(pin, level=logging.DEBUG) as cont:
+            with Pin(pin) as cont:
                 cd = cont.direction
                 gd = self.gpio.getDirection(pin)
                 self.assertTrue(cd == gd, msg=u"Pin container property "
@@ -160,7 +160,7 @@ class TestPin(unittest.TestCase):
         for e in edges:
             self.gpio.setEdge(pin, e)
 
-            with Pin(pin, level=logging.DEBUG) as cont:
+            with Pin(pin) as cont:
                 ce = cont.edge
                 ge = self.gpio.getEdge(pin)
                 self.assertTrue(ce == ge, msg=u"Pin container property "
