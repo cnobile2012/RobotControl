@@ -60,7 +60,7 @@ class Event(object):
         return self._queue.pop(fd, 0)
 
     def eventWait(self, timeout=-1):
-        readyEvents = self._getEpoll().poll(timeout, maxevents=1)
+        readyEvents = self._getEpoll().poll(timeout, maxevents=len(self._queue))
 
         if readyEvents:
             self._events.update(dict(readyEvents))

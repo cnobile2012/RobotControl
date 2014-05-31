@@ -127,7 +127,6 @@ class TestPin(unittest.TestCase):
         self.gpio.setMode(pin)
         cont = Pin(pin) #, level=logging.DEBUG)
         result = cont.isClosed
-        #print "File number:", cont.fileno()
         self.assertTrue(result == False, msg=u"Pin container property "
                         u"'isClosed' for pin '{}' should be 'False', found "
                         u"'{}'".format(pin, result))
@@ -174,18 +173,20 @@ class TestEvent(unittest.TestCase):
         super(TestEvent, self).__init__(name)
 
     def setUp(self):
-        self.event = Event()
         self.gpio = GPIO()
 
     def tearDown(self):
-        self.event.close()
         self.gpio.cleanup()
 
-#    def test_register(self):
-#        pin = u'gpio_44'
-#        self.gpio.setMode(pin, direction=GPIO.IN, edge=GPIO.RISING)
-#        cont = Pin(pin)
+    def test_register(self):
+        pin = u'gpio_44'
+        self.gpio.setMode(pin, direction=GPIO.IN, edge=GPIO.RISING)
 
+        with Pin(pin), Event() as cont, event:
+            event.register(cont)
+
+            while not event.hasInput(cont):
+                event.eventWait(timeout=0)
 
 
 
