@@ -28,22 +28,22 @@ class Event(object):
 
     def __init__(self, sizehint=-1):
         self._sizehint = sizehint
-        self._epoll = None
+        self.__epoll = None
         self._queue = {}
         self._events = {}
         self._containers = []
 
     def _getEpoll(self):
-        if not self._epoll:
-            self._epoll = select.epoll(self._sizehint)
+        if not self.__epoll:
+            self.__epoll = select.epoll(self._sizehint)
 
-        return self._epoll
+        return self.__epoll
 
     def fileno(self):
         return self._getEpoll().fileno()
 
     def close(self):
-        self._epoll is not None and self._epoll.close()
+        self.__epoll is not None and self.__epoll.close()
 
     def register(self, container, eventmask=INPUT|ERROR, trigger=None,
                  identifier=None):
