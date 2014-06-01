@@ -51,7 +51,9 @@ class Event(object):
         self._queue[fd] = identifier is not None and identifier or container
         trigger = trigger and trigger or getattr(
             container, '__trigger__', self.LEVEL)
-        self._getEpoll().register(fd, eventmask|(select.EPOLLET*trigger))
+        events = eventmask|(select.EPOLLET*trigger)
+        #print "events: {}".format(events)
+        self._getEpoll().register(fd, events)
 
     def unregester(self, container):
         fd = container.fileno()
@@ -61,6 +63,7 @@ class Event(object):
 
     def eventWait(self, timeout=-1):
         readyEvents = self._getEpoll().poll(timeout, maxevents=len(self._queue))
+        #print "readyEvents: {}".format(readyEvents)
 
         if readyEvents:
             self._events.update(dict(readyEvents))
