@@ -76,4 +76,3 @@ class Pin(BaseGPIO, BaseContainer):
             self._edge = self._readPin(path)
 
         return self._edge
-
