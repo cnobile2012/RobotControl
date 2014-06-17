@@ -179,30 +179,39 @@ class TestEvent(unittest.TestCase):
     def tearDown(self):
         self.gpio.cleanup()
 
-    def test_register(self):
-        pin = u'gpio_44'
+    def test_register_unregister(self):
+        pin = u'gpio_26' # pin P8_14
         self.gpio.setMode(pin, direction=GPIO.IN, edge=GPIO.RISING)
 
         with Pin(pin) as cont, Event() as event:
             event.register(cont)
-            
+            self.assertTrue(len(event._queue) == 1)
+            event.unregester(cont)
+            self.assertTrue(len(event._queue) == 0)
+
+    def test_eventWait(self):
+        pin = u'gpio_26' # pin P8_14
+        self.gpio.setMode(pin, direction=GPIO.IN, edge=GPIO.RISING)
+
+        with Pin(pin) as cont, Event() as event:
+            event.register(cont)
+
+            while not event.hasInput(cont):
+                try:
+                    event.eventWait(timeout=-1)
+                    print "queue: {}\nevents: {},\ncontainers: {}".format(
+                        event._queue, event._events, event._containers)
+                except select.error as e:
+                    print e
 
 
 
-            ## #while not event.hasInput(cont):
 
-            ## try:
-            ##     event.eventWait(timeout=0)
-            ##     print "queue: {}\nevents: {},\ncontainers: {}".format(
-            ##           event._queue, event._events, event._containers)
-
-            ##     print "hasInput: {}".format(event.hasInput(cont))
-            ##     print "hasOutput: {}".format(event.hasOutput(cont))
-            ##     print "hasError: {}".format(event.hasError(cont))
-            ##     print "hasHangup: {}".format(event.hasHangup(cont))
-            ##     print "hasPriorityInput: {}".format(event.hasPriorityInput(cont))
-            ## except select.error as e:
-            ##     print e
+        ## print "hasInput: {}".format(event.hasInput(cont))
+        ## print "hasOutput: {}".format(event.hasOutput(cont))
+        ## print "hasError: {}".format(event.hasError(cont))
+        ## print "hasHangup: {}".format(event.hasHangup(cont))
+        ## print "hasPriorityInput: {}".format(event.hasPriorityInput(cont))
 
 
 
