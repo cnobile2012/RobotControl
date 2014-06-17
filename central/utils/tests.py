@@ -186,7 +186,7 @@ class TestEvent(unittest.TestCase):
         with Pin(pin) as cont, Event() as event:
             event.register(cont)
             self.assertTrue(len(event._queue) == 1)
-            event.unregester(cont)
+            event.unregister(cont)
             self.assertTrue(len(event._queue) == 0)
 
     def test_eventWait(self):
@@ -198,7 +198,10 @@ class TestEvent(unittest.TestCase):
 
             while not event.hasInput(cont):
                 try:
-                    event.eventWait(timeout=-1)
+                    event.eventWait(timeout=-1) # Bocking
+                    msg = u"Poll has an error."
+                    self.assertTrue(event.hasError(cont) == False, msg)
+
                     print "queue: {}\nevents: {},\ncontainers: {}".format(
                         event._queue, event._events, event._containers)
                 except select.error as e:

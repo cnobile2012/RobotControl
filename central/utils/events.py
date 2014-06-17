@@ -55,9 +55,9 @@ class Event(object):
         #print "events: {}".format(events)
         self._getEpoll().register(fd, eventmask=events)
 
-    def unregester(self, container):
+    def unregister(self, container):
         fd = container.fileno()
-        self._getEpoll().unregester(fd)
+        self._getEpoll().unregister(fd)
         self._events.pop(fd, 0)
         return self._queue.pop(fd, 0)
 
