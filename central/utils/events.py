@@ -53,7 +53,7 @@ class Event(object):
             container, '__trigger__', self.LEVEL)
         events = eventmask|(select.EPOLLET*trigger)
         #print "events: {}".format(events)
-        self._getEpoll().register(fd, events)
+        self._getEpoll().register(fd, eventmask=events)
 
     def unregester(self, container):
         fd = container.fileno()

@@ -75,7 +75,7 @@ class RotaryEncoder(object):
                 self._last = new
                 self._encDelta += (diff & 2) - 1
 
-        except Exception, e:
+        except Exception as e:
             print e
 
     def enableInterrupts(self):
