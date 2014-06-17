@@ -200,10 +200,12 @@ class TestEvent(unittest.TestCase):
                 try:
                     event.eventWait(timeout=-1) # Bocking
                     msg = u"Poll has an error."
-                    self.assertTrue(event.hasError(cont) == False, msg)
-
                     print "queue: {}\nevents: {},\ncontainers: {}".format(
                         event._queue, event._events, event._containers)
+                    print bin(event._events.get(cont.fileno()))
+
+
+                    self.assertTrue(event.hasError(cont) == False, msg)
                 except select.error as e:
                     print e
 
