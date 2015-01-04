@@ -3,7 +3,8 @@
 .#*
 *#*#
 .DS_Store
-*.txt
+**/*.txt
+!requirments.txt
 *.pdf
 logs/*.log*
 old
