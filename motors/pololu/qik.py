@@ -74,7 +74,6 @@ class Qik(object):
     def __init__(self, device, baud=38400, version=QIK_VER_2,
                  readTimeout=None, writeTimeout=None):
         self._version = version
-        self._compact = True
         self._device_numbers = []
         self._serial = serial.Serial(port=device, baudrate=baud,
                                      bytesize=serial.EIGHTBITS,
@@ -82,6 +81,7 @@ class Qik(object):
                                      stopbits=serial.STOPBITS_ONE,
                                      timeout=readTimeout,
                                      writeTimeout=writeTimeout)
+        self.compactProtocol()
 
     def close(self):
         if self._serial:
@@ -92,6 +92,7 @@ class Qik(object):
         Set the compact protocol, this is the default.
         """
         self._compact = True
+        self._serial.write('\xAA')
 
     def pololuProtocol(self):
         """
