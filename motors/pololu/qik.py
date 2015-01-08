@@ -83,6 +83,10 @@ class Qik(object):
                                      timeout=readTimeout,
                                      writeTimeout=writeTimeout)
 
+    def close(self):
+        if self._serial:
+            self._serial.close()
+
     def compactProtocol(self):
         """
         Set the compact protocol, this is the default.
@@ -117,7 +121,7 @@ class Qik(object):
         for param in params:
             sequence.append(param)
 
-        self._serial.write(bytearry(sequence))
+        self._serial.write(bytearray(sequence))
 
     def getFirmwareVersion(self, device=_DEFAULT_DEVICE_ID):
         cmd = self._COMMAND.get('get-fw-version')
@@ -125,6 +129,7 @@ class Qik(object):
 
         try:
             result = self._serial.read(size=1)
+            result = int(result)
         except serial.SerialException as e:
             print e
 
@@ -136,7 +141,7 @@ class Qik(object):
 
         try:
             result = self._serial.read(size=1)
-            result = int(result)
+            result = ord(result)
         except serial.SerialException as e:
             print e
         except ValueError as e:
@@ -153,7 +158,7 @@ class Qik(object):
 
         try:
             result = self._serial.read(size=1)
-            result = int(result)
+            result = ord(result)
         except serial.SerialException as e:
             print e
         except ValueError as e:
@@ -191,7 +196,7 @@ class Qik(object):
 
         try:
             result = self._serial.read(size=1)
-            result = int(result)
+            result = ord(result)
         except serial.SerialException as e:
             print e
         except ValueError as e:
@@ -275,9 +280,3 @@ class Qik(object):
             raise ValueError("Invalid motor specified: {}".format(motor))
 
         self._sendProtocol(cmd, device, params=(speed,))
-
-
-
-
-
-
