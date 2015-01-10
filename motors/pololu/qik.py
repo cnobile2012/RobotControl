@@ -29,9 +29,9 @@ class Qik(object):
         'm1-reverse-8bit': 0x0F,
        }
     _ERRORS = {
-        0: 'Unused',
-        1: 'Unused',
-        2: 'Unused',
+        0: '0 Unused',
+        1: '1 Unused',
+        2: '2 Unused',
         4: 'Data Overrun Error',
         4: 'Frame Error',
         5: 'CRC Error',
@@ -92,7 +92,7 @@ class Qik(object):
         Set the compact protocol, this is the default.
         """
         self._compact = True
-        self._serial.write('\xAA')
+        self._serial.write(bytes(self._BAUD_DETECT))
 
     def pololuProtocol(self):
         """
@@ -133,6 +133,9 @@ class Qik(object):
             result = int(result)
         except serial.SerialException as e:
             print e
+            raise e
+        except ValueError as e:
+            print e
 
         return result
 
@@ -145,7 +148,8 @@ class Qik(object):
             result = ord(result)
         except serial.SerialException as e:
             print e
-        except ValueError as e:
+            raise e
+        except TypeError as e:
             print e
 
         if message:
@@ -162,7 +166,8 @@ class Qik(object):
             result = ord(result)
         except serial.SerialException as e:
             print e
-        except ValueError as e:
+            raise e
+        except TypeError as e:
             print e
 
         return result
@@ -200,11 +205,13 @@ class Qik(object):
             result = ord(result)
         except serial.SerialException as e:
             print e
-        except ValueError as e:
+            raise e
+        except TypeError as e:
             print e
 
         if message:
-            result = self._CONFIG_RETURN.get(result, 'Unknown return value')
+            result = self._CONFIG_RETURN.get(
+                result, 'Unknown return value: {}'.format(result))
 
         return result
 
@@ -229,10 +236,10 @@ class Qik(object):
                               message=message)
 
     def setSerialTimeout(self, value, device=_DEFAULT_DEVICE_ID, message=True):
-        if isinstance(value, str) and value.isdigit():
-            value = int(value)
-        elif not isinstance(value, int):
-            raise ValueError("Invalid serial timeout value: {}".format(value))
+        #if isinstance(value, str) and value.isdigit():
+        #    value = int(value)
+        #elif not isinstance(value, int):
+        #    raise ValueError("Invalid serial timeout value: {}".format(value))
 
         #value = value / 0.262
 
