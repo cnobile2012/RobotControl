@@ -81,20 +81,22 @@ class Qik(object):
                                      stopbits=serial.STOPBITS_ONE,
                                      timeout=readTimeout,
                                      writeTimeout=writeTimeout)
-        self.compactProtocol()
+        # DO NOT default to compact protocol. If your Qik gets bricked and
+        # the default it compact it cannot be unbricked with this API.
+        self.setPololuProtocol()
 
     def close(self):
         if self._serial:
             self._serial.close()
 
-    def compactProtocol(self):
+    def setCompactProtocol(self):
         """
         Set the compact protocol, this is the default.
         """
         self._compact = True
         self._serial.write(bytes(self._BAUD_DETECT))
 
-    def pololuProtocol(self):
+    def setPololuProtocol(self):
         """
         Set the pololu protocol.
         """
