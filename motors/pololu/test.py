@@ -1,27 +1,44 @@
 #!/usr/bin/env python
 
-def to(v):
+def toTimeout(v, const=0.262):
     x = v & 0x0F
     y = (v >> 4) & 0x07
     #print "x: {:02}, 2^y: {:03} ".format(x, 2**y),
-    return 0.262 * x * 2**y
+    result = None
+
+    if not y or (y and x > 7):
+        result = const * x * 2**y
+    #else:
+    #    print "x: {:02}, 2^y: {:03} ".format(x, 2**y)
+
+    return result
 
 
 result = []
 
 for i in range(128):
-    #print "{:03}({})({}): {}".format(i, hex(i), bin(i), to(i))
-    result.append((to(i), i))
+    #print "{:03}({})({}): {}".format(i, hex(i), bin(i), toTimeout(i))
+    value = toTimeout(i, const=0.25)
 
-tmp = []
+    if value is not None:
+        result.append((value, i))
 
-for t, v in result:
-    if t not in [x for x,y in tmp]:
-        tmp.append((t, v))
+#print result
 
+def fromTimeout(const=0.262):
+    result = []
 
-tmp.sort(cmp=lambda x,y: cmp(x[0], y[0]))
-print tmp
+    for v in range(128):
+        x = v & 0x0F
+        y = (v >> 4) & 0x07
+        #print bin(y), bin(x)
+
+        if not y or (y and x > 7):
+            print bin(y), bin(x)
+            result.append((const * x * 2**y, v))
+
+    return result
+
 
 
 # 2**y == [1, 2, 4, 8, 16, 32, 64, 128]
