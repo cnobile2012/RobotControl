@@ -99,6 +99,20 @@ class Qik(object):
         # DO NOT default to compact protocol. If your Qik gets bricked and
         # the default it compact it cannot be unbricked with this API.
         self.setPololuProtocol()
+        self._timeoutToValue = self._genTimeoutList()
+
+    def _genTimeoutList(self, const=0.262):
+        result = {}
+
+        for v in range(128):
+            x = v & 0x0F
+            y = (v >> 4) & 0x07
+
+            if not y or (y and x > 7):
+                #print bin(y), bin(x)
+                result[const * x * 2**y] = v
+
+        return result
 
     def close(self):
         if self._serial:
@@ -157,6 +171,9 @@ class Qik(object):
         return result
 
     def getError(self, device=_DEFAULT_DEVICE_ID, message=True):
+        """
+        Returns '0 Unused' if there is no error to return.
+        """
         cmd = self._COMMAND.get('get-error')
         self._sendProtocol(cmd, device)
 
@@ -208,6 +225,13 @@ class Qik(object):
         return self._CONFIG_MOTOR.get(result, 'Unknown state')
 
     def getSerialTimeout(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Caution, more that one value returned from theQik can have the same
+        actual timeout value according the the formula below. I have verified
+        this as a bug in the Qik itself. There are only a total of 72 unique
+        values that the Qik can logicly use the remaining 56 values are repeats
+        of the 72.
+        """
         result = self.getConfig(self.SERIAL_TIMEOUT, device=device)
         x = result & 0x0F
         y = (result >> 4) & 0x07
@@ -252,15 +276,34 @@ class Qik(object):
         return self.setConfig(self.MOTOR_ERR_SHUTDOWN, value, device=device,
                               message=message)
 
-    def setSerialTimeout(self, value, device=_DEFAULT_DEVICE_ID, message=True):
-        #if isinstance(value, str) and value.isdigit():
-        #    value = int(value)
-        #elif not isinstance(value, int):
-        #    raise ValueError("Invalid serial timeout value: {}".format(value))
+    def setSerialTimeout(self, timeout, device=_DEFAULT_DEVICE_ID,
+                         message=True):
+        """
+        Setting the serial timeout to anything other than zero will cause an
+        error if the serial line is inactive for the time set. This may not be
+        a good thing as leaving the Qik idle may be a required event. Why
+        would you want the Qik to report an error when none actually occurred
+        and your Qik was just idle?
 
-        #value = value / 0.262
+        This also explains why if the Qik is set at a very low timeout that the
+        red LED will come on almost immediately. You will not even get a chance
+        to send it a command before the timeout. This would be like bricking
+        your Qik. Not a good thing.
 
-
+        OK, so how do we actually use the serial timeout. Good question, the
+        best way I can think of is to send the Qik a keep alive signal. One
+        way of doing this is to execute the getError() method at about half
+        the timeout period. So if the timeout was set to 200ms you would get
+        the error status every 100ms. The Qik will stay alive unless the keep
+        alive signal is not seen. This should solve the problem, but getting
+        the timing right may be an issue as different Qiks will timeout a
+        little differently from others. When using more than one Qik on the
+        serial buss this may become an issue.
+        """
+        keys = self._timeoutToValue.keys()
+        keys.sort()
+        timeout = min(keys, key=lambda x:abs(x-timeout))
+        value = self._timeoutToValue.get(timeout, 0)
         return self.setConfig(self.SERIAL_TIMEOUT, value, device=device,
                               message=message)
 
