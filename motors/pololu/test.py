@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-def toTimeout(v, const=0.262):
+def binToTimeout(v, const=0.262):
     x = v & 0x0F
     y = (v >> 4) & 0x07
     #print "x: {:02}, 2^y: {:03} ".format(x, 2**y),
@@ -25,7 +25,7 @@ for i in range(128):
 
 #print result
 
-def fromTimeout(const=0.262):
+def genTimeoutList(const=0.262):
     result = []
 
     for v in range(128):
@@ -38,7 +38,6 @@ def fromTimeout(const=0.262):
             result.append((const * x * 2**y, v))
 
     return result
-
 
 
 # 2**y == [1, 2, 4, 8, 16, 32, 64, 128]
