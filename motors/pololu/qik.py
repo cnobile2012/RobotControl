@@ -64,15 +64,11 @@ class Qik(object):
         MOTOR_ERR_SHUTDOWN: 'Shutdown Motors on Error',
         SERIAL_TIMEOUT: 'Serial Error',
         }
-    PWM_7B_31500 = 0
-    PWM_8B_15700 = 1
-    PWM_7B_7800 = 2
-    PWM_8B_3900 = 3
     _CONFIG_PWM = {
-        PWM_7B_31500: (31500, '7-Bit, PWM Frequency 31.5kHz'),
-        PWM_8B_15700: (15700, '8-Bit, PWM Frequency 15.7 kHz'),
-        PWM_7B_7800: (7800, '7-Bit, PWM Frequency 7.8 kHz'),
-        PWM_8B_3900: (3900, '8-Bit, PWM Frequency 3.9 kHz'),
+        0: (31500, '7-Bit, PWM Frequency 31.5kHz'),
+        1: (15700, '8-Bit, PWM Frequency 15.7 kHz'),
+        2: (7800, '7-Bit, PWM Frequency 7.8 kHz'),
+        3: (3900, '8-Bit, PWM Frequency 3.9 kHz'),
         }
     _CONFIG_PWM_TO_VALUE = dict([(v[0], k) for k, v in _CONFIG_PWM.items()])
     MOTORS_CONTINUE = 0
