@@ -5,8 +5,7 @@
 #
 
 """
-This code was written to work with the Pololu Qik motor controller.
-http://www.pololu.com/catalog/product/1110
+This code was written to work with the Pololu Qik motor controllers.
 
 by Carl J. Nobile
 
@@ -23,68 +22,14 @@ import serial
 
 
 class Qik(object):
-    QIK_VER_1 = 1
-    QIK_VER_2 = 2
     _BAUD_DETECT = 0xAA
-    _DEFAULT_DEVICE_ID = 0x09
-    _COMMAND = {
-        'get-fw-version': 0x01,
-        'get-error': 0x02,
-        'get-config': 0x03,
-        'set-config': 0x04,
-        'm0-coast': 0x06,
-        'm1-coast': 0x07,
-        'm0-forward-7bit': 0x08,
-        'm0-forward-8bit': 0x09,
-        'm0-reverse-7bit': 0x0A,
-        'm0-reverse-8bit': 0x0B,
-        'm1-forward-7bit': 0x0C,
-        'm1-forward-8bit': 0x0D,
-        'm1-reverse-7bit': 0x0E,
-        'm1-reverse-8bit': 0x0F,
-       }
-    _ERRORS = {
-        0: 'OK',
-        1: 'Bit 0 Unused',
-        2: 'Bit 1 Unused',
-        4: 'Bit 2 Unused',
-        8: 'Data Overrun Error',
-        16: 'Frame Error',
-        32: 'CRC Error',
-        64: 'Format Error',
-        128: 'Timeout',
-        }
-    DEVICE_ID = 0x00
-    PWM_PARAM = 0x01
-    MOTOR_ERR_SHUTDOWN = 0x02
-    SERIAL_TIMEOUT = 0x03
-    _CONFIG_NUM = {
-        DEVICE_ID: 'Device ID',
-        PWM_PARAM: 'PWM Parameter',
-        MOTOR_ERR_SHUTDOWN: 'Shutdown Motors on Error',
-        SERIAL_TIMEOUT: 'Serial Error',
-        }
-    _CONFIG_PWM = {
-        0: (31500, '7-Bit, PWM Frequency 31.5kHz'),
-        1: (15700, '8-Bit, PWM Frequency 15.7 kHz'),
-        2: (7800, '7-Bit, PWM Frequency 7.8 kHz'),
-        3: (3900, '8-Bit, PWM Frequency 3.9 kHz'),
-        }
-    _CONFIG_PWM_TO_VALUE = dict([(v[0], k) for k, v in _CONFIG_PWM.items()])
-    MOTORS_CONTINUE = 0
-    MOTORS_STOPPED = 1
-    _CONFIG_MOTOR = {
-        MOTORS_CONTINUE: 'Motors are not stopped on error.',
-        MOTORS_STOPPED: 'Motors are stopped on error.',
-        }
     _CONFIG_RETURN = {
         0: 'OK',
         1: 'Invalid Parameter',
         2: 'Invalid Value',
         }
 
-    def __init__(self, device, baud=38400, version=QIK_VER_2,
-                 readTimeout=None, writeTimeout=None):
+    def __init__(self, device, baud, version, readTimeout, writeTimeout):
         self._version = version
         self._device_numbers = []
         self._serial = serial.Serial(port=device, baudrate=baud,
@@ -96,10 +41,9 @@ class Qik(object):
         # DO NOT default to compact protocol. If your Qik gets bricked and
         # the default it compact it cannot be unbricked with this API.
         self.setPololuProtocol()
-        self._timeoutToValue = self._genTimeoutList()
-        self._currentPWM = 0 # 31500 7 bit mode
+        self._currentPWM = 0 # Default PWM
 
-    def _genTimeoutList(self, const=0.262):
+    def _genTimeoutList(self, const):
         result = {}
 
         for v in range(128):
@@ -129,15 +73,6 @@ class Qik(object):
         """
         self._compact = False
 
-    def setDeviceNumbers(self, size, prefix, startNum=_DEFAULT_DEVICE_ID):
-        self._device_numbers[:] = [
-            ("{}{:03}".format(prefix, idx), num)
-            for num, idx in enumerate(range(size), start=start_num)]
-
-    def getDeviceNumber(self, key):
-        dnMap = dict(self._device_numbers)
-        return dnMap.get(key)
-
     def _sendProtocol(self, command, device, params=()):
         sequence = []
 
@@ -153,7 +88,7 @@ class Qik(object):
 
         self._serial.write(bytearray(sequence))
 
-    def getFirmwareVersion(self, device=_DEFAULT_DEVICE_ID):
+    def _getFirmwareVersion(self, device):
         cmd = self._COMMAND.get('get-fw-version')
         self._sendProtocol(cmd, device)
 
@@ -168,7 +103,7 @@ class Qik(object):
 
         return result
 
-    def getError(self, device=_DEFAULT_DEVICE_ID, message=True):
+    def _getError(self, device, message):
         """
         Returns '0 Unused' if there is no error to return.
         """
@@ -189,7 +124,7 @@ class Qik(object):
 
         return result
 
-    def getConfig(self, num, device=_DEFAULT_DEVICE_ID):
+    def _getConfig(self, num, device):
         cmd = self._COMMAND.get('get-config')
         self._sendProtocol(cmd, device, params=(num,))
 
@@ -204,11 +139,11 @@ class Qik(object):
 
         return result
 
-    def getDeviceID(self, device=_DEFAULT_DEVICE_ID):
-        return self.getConfig(self.DEVICE_ID, device=device)
+    def _getDeviceID(self, device):
+        return self._getConfig(self.DEVICE_ID, device)
 
-    def getPWMFrequency(self, device=_DEFAULT_DEVICE_ID, message=True):
-        result = self.getConfig(self.PWM_PARAM, device=device)
+    def _getPWMFrequency(self, device, message):
+        result = self._getConfig(self.PWM_PARAM, device)
         freq, msg = self._CONFIG_PWM.get(result, (0, 'Invalid Frequency'))
 
         if message:
@@ -218,24 +153,24 @@ class Qik(object):
 
         return result
 
-    def getMotorShutdown(self, device=_DEFAULT_DEVICE_ID):
-        result = self.getConfig(self.MOTOR_ERR_SHUTDOWN, device=device)
+    def _getMotorShutdown(self, device):
+        result = self._getConfig(self.MOTOR_ERR_SHUTDOWN, device)
         return self._CONFIG_MOTOR.get(result, 'Unknown state')
 
-    def getSerialTimeout(self, device=_DEFAULT_DEVICE_ID):
+    def _getSerialTimeout(self, device):
         """
-        Caution, more that one value returned from theQik can have the same
+        Caution, more that one value returned from the Qik can have the same
         actual timeout value according the the formula below. I have verified
         this as a bug in the Qik itself. There are only a total of 72 unique
-        values that the Qik can logicly use the remaining 56 values are repeats
-        of the 72.
+        values that the Qik can logically use the remaining 56 values are
+        repeats of the 72.
         """
-        result = self.getConfig(self.SERIAL_TIMEOUT, device=device)
+        result = self._getConfig(self.SERIAL_TIMEOUT, device)
         x = result & 0x0F
         y = (result >> 4) & 0x07
         return 0.262 * x * pow(2, y)
 
-    def setConfig(self, num, value, device=_DEFAULT_DEVICE_ID, message=True):
+    def _setConfig(self, num, value, device, message):
         cmd = self._COMMAND.get('set-config')
         self._sendProtocol(cmd, device, params=(num, value, 0x55, 0x2A))
 
@@ -254,29 +189,26 @@ class Qik(object):
 
         return result
 
-    def setDeviceID(self, value, message=True):
-        return self.setConfig(self.DEVICE_ID, value, message=message)
+    def _setDeviceID(self, value, message):
+        return self._setConfig(self.DEVICE_ID, value, message)
 
-    def setPWMFrequency(self, pwm, device=_DEFAULT_DEVICE_ID, message=True):
+    def _setPWMFrequency(self, pwm, device, message):
         value = self._CONFIG_PWM_TO_VALUE.get(pwm)
 
         if value is None:
             raise ValueError("Invalid frequency: {}".format(pwm))
 
         self._currentPWM = value
-        return self.setConfig(self.PWM_PARAM, value, device=device,
-                              message=message)
+        return self._setConfig(self.PWM_PARAM, value, device, message)
 
-    def setMotorShutdown(self, value, device=_DEFAULT_DEVICE_ID, message=True):
+    def _setMotorShutdown(self, value, device, message):
         if value not in self._CONFIG_MOTOR:
             raise ValueError(
                 "Invalid motor shutdown on error value: {}".format(value))
 
-        return self.setConfig(self.MOTOR_ERR_SHUTDOWN, value, device=device,
-                              message=message)
+        return self._setConfig(self.MOTOR_ERR_SHUTDOWN, value, device, message)
 
-    def setSerialTimeout(self, timeout, device=_DEFAULT_DEVICE_ID,
-                         message=True):
+    def _setSerialTimeout(self, timeout, device, message):
         """
         Setting the serial timeout to anything other than zero will cause an
         error if the serial line is inactive for the time set. This may not be
@@ -304,21 +236,20 @@ class Qik(object):
         keys.sort()
         timeout = min(keys, key=lambda x:abs(x-timeout))
         value = self._timeoutToValue.get(timeout, 0)
-        return self.setConfig(self.SERIAL_TIMEOUT, value, device=device,
-                              message=message)
+        return self._setConfig(self.SERIAL_TIMEOUT, value, device, message)
 
-    def setM0Coast(self, device=_DEFAULT_DEVICE_ID):
+    def _setM0Coast(self, device):
         cmd = self._COMMAND.get('m0-coast')
         self._sendProtocol(cmd, device)
 
-    def setM1Coast(self, device=_DEFAULT_DEVICE_ID):
+    def _setM1Coast(self, device):
         cmd = self._COMMAND.get('m1-coast')
         self._sendProtocol(cmd, device)
 
-    def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+    def _setM0Speed(self, speed, device):
         self._setSpeed(speed, 'm0', device)
 
-    def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+    def _setM1Speed(self, speed, device):
         self._setSpeed(speed, 'm1', device)
 
     def _setSpeed(self, speed, motor, device):
