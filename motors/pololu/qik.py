@@ -44,14 +44,15 @@ class Qik(object):
         'm1-reverse-8bit': 0x0F,
        }
     _ERRORS = {
-        0: '0 Unused',
-        1: '1 Unused',
-        2: '2 Unused',
-        4: 'Data Overrun Error',
-        4: 'Frame Error',
-        5: 'CRC Error',
-        6: 'Format Error',
-        7: 'Timeout',
+        0: 'OK',
+        1: 'Bit 0 Unused',
+        2: 'Bit 1 Unused',
+        4: 'Bit 2 Unused',
+        8: 'Data Overrun Error',
+        16: 'Frame Error',
+        32: 'CRC Error',
+        64: 'Format Error',
+        128: 'Timeout',
         }
     DEVICE_ID = 0x00
     PWM_PARAM = 0x01
@@ -85,6 +86,8 @@ class Qik(object):
         1: 'Invalid Parameter',
         2: 'Invalid Value',
         }
+    BITS7 = True
+    BITS8 = False
 
     def __init__(self, device, baud=38400, version=QIK_VER_2,
                  readTimeout=None, writeTimeout=None):
@@ -187,7 +190,7 @@ class Qik(object):
             print e
 
         if message:
-            result = self._ERRORS.get(result)
+            result = self._ERRORS.get(result, result)
 
         return result
 
@@ -315,34 +318,35 @@ class Qik(object):
         cmd = self._COMMAND.get('m1-coast')
         self._sendProtocol(cmd, device)
 
-    def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID):
-        self._setSpeed(speed, 'm0', device=device)
+    def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID, bits=BITS7):
+        self._setSpeed(speed, 'm0', device, bits)
 
-    def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID):
-        self._setSpeed(speed, 'm1', device=device)
+    def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID, bits=BITS7):
+        self._setSpeed(speed, 'm1', device, bits)
 
-    def _setSpeed(self, speed, motor, device):
+    def _setSpeed(self, speed, motor, device, bits):
         reverse = False
 
         if speed < 0:
             speed = -speed
             reverse = True
 
-        if speed > 255:
-            speed = 255
+        if bits:
+            if speed > 127:
+                speed = 127
 
-        if speed > 127:
-            if reverse:
-                cmd = self._COMMAND.get('{}-reverse-8bit'.format(motor))
-            else:
-                cmd = self._COMMAND.get('{}-forward-8bit'.format(motor))
-
-            speed -= 128
-        else:
             if reverse:
                 cmd = self._COMMAND.get('{}-reverse-7bit'.format(motor))
             else:
                 cmd = self._COMMAND.get('{}-forward-7bit'.format(motor))
+        else:
+            if speed > 255:
+                speed = 255
+
+            if reverse:
+                cmd = self._COMMAND.get('{}-reverse-8bit'.format(motor))
+            else:
+                cmd = self._COMMAND.get('{}-forward-8bit'.format(motor))
 
         if not cmd:
             raise ValueError("Invalid motor specified: {}".format(motor))
