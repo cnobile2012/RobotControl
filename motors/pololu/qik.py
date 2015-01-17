@@ -74,7 +74,7 @@ class Qik(object):
         PWM_7B_7800: (7800, '7-Bit, PWM Frequency 7.8 kHz'),
         PWM_8B_3900: (3900, '8-Bit, PWM Frequency 3.9 kHz'),
         }
-    _CONFIG_PWN_TO_VALUE = [(v[0], k) for k, v in _CONFIG_PWM.items()]
+    _CONFIG_PWM_TO_VALUE = dict([(v[0], k) for k, v in _CONFIG_PWM.items()])
     MOTORS_CONTINUE = 0
     MOTORS_STOPPED = 1
     _CONFIG_MOTOR = {
@@ -86,8 +86,6 @@ class Qik(object):
         1: 'Invalid Parameter',
         2: 'Invalid Value',
         }
-    BITS7 = True
-    BITS8 = False
 
     def __init__(self, device, baud=38400, version=QIK_VER_2,
                  readTimeout=None, writeTimeout=None):
@@ -103,6 +101,7 @@ class Qik(object):
         # the default it compact it cannot be unbricked with this API.
         self.setPololuProtocol()
         self._timeoutToValue = self._genTimeoutList()
+        self._currentPWM = 0 # 31500 7 bit mode
 
     def _genTimeoutList(self, const=0.262):
         result = {}
@@ -262,13 +261,14 @@ class Qik(object):
     def setDeviceID(self, value, message=True):
         return self.setConfig(self.DEVICE_ID, value, message=message)
 
-    def setPWMFrequency(self, value, device=_DEFAULT_DEVICE_ID, message=True):
-        num = self._CONFIG_PWN_TO_VALUE.get(value)
+    def setPWMFrequency(self, pwm, device=_DEFAULT_DEVICE_ID, message=True):
+        value = self._CONFIG_PWM_TO_VALUE.get(pwm)
 
-        if not num:
-            raise ValueError("Invalid frequency: {}".format(value))
+        if value is None:
+            raise ValueError("Invalid frequency: {}".format(pwm))
 
-        return self.setConfig(self.PWM_PARAM, num, device=device,
+        self._currentPWM = value
+        return self.setConfig(self.PWM_PARAM, value, device=device,
                               message=message)
 
     def setMotorShutdown(self, value, device=_DEFAULT_DEVICE_ID, message=True):
@@ -295,13 +295,14 @@ class Qik(object):
 
         OK, so how do we actually use the serial timeout. Good question, the
         best way I can think of is to send the Qik a keep alive signal. One
-        way of doing this is to execute the getError() method at about half
-        the timeout period. So if the timeout was set to 200ms you would get
-        the error status every 100ms. The Qik will stay alive unless the keep
-        alive signal is not seen. This should solve the problem, but getting
-        the timing right may be an issue as different Qiks will timeout a
-        little differently from others. When using more than one Qik on the
-        serial buss this may become an issue.
+        way of doing this is to execute the getError() method at a little less
+        than half the timeout period. So if the timeout was set to 200ms you
+        would get the error status every 90ms. The Qik will stay alive unless
+        the keep alive signal is not seen. This should solve the problem, but
+        getting the timing right may be an issue as different Qiks will timeout
+        a little differently from others. When using more than one Qik on the
+        serial buss this may become an issue. You will need to play with some
+        different values.
         """
         keys = self._timeoutToValue.keys()
         keys.sort()
@@ -318,28 +319,24 @@ class Qik(object):
         cmd = self._COMMAND.get('m1-coast')
         self._sendProtocol(cmd, device)
 
-    def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID, bits=BITS7):
-        self._setSpeed(speed, 'm0', device, bits)
+    def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+        self._setSpeed(speed, 'm0', device)
 
-    def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID, bits=BITS7):
-        self._setSpeed(speed, 'm1', device, bits)
+    def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+        self._setSpeed(speed, 'm1', device)
 
-    def _setSpeed(self, speed, motor, device, bits):
+    def _setSpeed(self, speed, motor, device):
         reverse = False
 
         if speed < 0:
             speed = -speed
             reverse = True
 
-        if bits:
-            if speed > 127:
-                speed = 127
+        # 0 and 2 for Qik 2s9v1, 0, 2, and 4 for 2s12v10
+        if self._currentPWM in (0, 2, 4,) and speed > 127:
+            speed = 127
 
-            if reverse:
-                cmd = self._COMMAND.get('{}-reverse-7bit'.format(motor))
-            else:
-                cmd = self._COMMAND.get('{}-forward-7bit'.format(motor))
-        else:
+        if speed > 127:
             if speed > 255:
                 speed = 255
 
@@ -347,6 +344,13 @@ class Qik(object):
                 cmd = self._COMMAND.get('{}-reverse-8bit'.format(motor))
             else:
                 cmd = self._COMMAND.get('{}-forward-8bit'.format(motor))
+
+            speed -= 128
+        else:
+            if reverse:
+                cmd = self._COMMAND.get('{}-reverse-7bit'.format(motor))
+            else:
+                cmd = self._COMMAND.get('{}-forward-7bit'.format(motor))
 
         if not cmd:
             raise ValueError("Invalid motor specified: {}".format(motor))
