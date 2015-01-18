@@ -14,17 +14,6 @@ def binToTimeout(v, const=0.262):
     return result
 
 
-result = []
-
-for i in range(128):
-    #print "{:03}({})({}): {}".format(i, hex(i), bin(i), toTimeout(i))
-    value = toTimeout(i, const=0.25)
-
-    if value is not None:
-        result.append((value, i))
-
-#print result
-
 def genTimeoutList(const=0.262):
     result = []
 

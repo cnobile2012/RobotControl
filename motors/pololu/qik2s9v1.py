@@ -18,6 +18,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+__docformat__ = "restructuredtext en"
+
 
 from .qik import Qik
 
@@ -85,46 +87,323 @@ class Qik2s9v1(Qik):
         super(Qik2s9v1, self).__init__(device, baud, version, readTimeout,
                                        writeTimeout)
         self._timeoutToValue = self._genTimeoutList(0.262)
+        self._currentPWM = {9: 0} # Default PWM
 
     def getFirmwareVersion(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Get the firmware version of the Qik 2s9v1 hardware.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Returns:
+          An integer indicating the version number.
+        """
         return self._getFirmwareVersion(device)
 
     def getError(self, device=_DEFAULT_DEVICE_ID, message=True):
+        """
+        Get the error message or value stored in the Qik 2s9v1 hardware.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+          message : `bool`
+            If set to `True` a text message will be returned, if set to `False`
+            the integer stored in the Qik will be returned.
+
+        :Returns:
+          A text message or an int. See the `message` parameter above.
+        """
         return self._getError(device, message)
 
     def getDeviceID(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Get the device ID.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Returns:
+          An integer number of the hardware device ID.
+        """
         return self._getDeviceID(device)
 
     def getPWMFrequency(self, device=_DEFAULT_DEVICE_ID, message=True):
+        """
+        Get the motor shutdown on error status stored on the hardware device.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+          message : `bool`
+            If set to `True` a text message will be returned, if set to `False`
+            the integer stored in the Qik will be returned.
+
+        :Returns:
+          A text message or an int. See the `message` parameter above.
+        """
         return self._getPWMFrequency(device, message)
 
     def getMotorShutdown(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Get the motor shutdown on error status stored on the hardware device.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Returns:
+          Text message indicating the status of the shutdown error.
+        """
         return self._getMotorShutdown(device)
 
     def getSerialTimeout(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Get the serial timeout stored on the hardware device.
+
+        Caution, more that one value returned from the Qik can have the same
+        actual timeout value according the the formula below. I have verified
+        this as an idiosyncrasy of the Qik itself. There are only a total of
+        72 unique values that the Qik can logically use the remaining 56
+        values are repeats of the 72.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Returns:
+          The timeout value in seconds.
+        """
         return self._getSerialTimeout(device)
 
-    def setDeviceID(self, value, message=True):
-        return self._setDeviceID(value, message)
+    def setDeviceID(self, value, device=_DEFAULT_DEVICE_ID, message=True):
+        """
+        Set the hardware device number. This is only needed if more that one
+        device is on the same serial buss.
+
+        :Parameters:
+          value : `int`
+            The device ID to set in the range of 0 - 127.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+          message : `bool`
+            If set to `True` a text message will be returned, if set to `False`
+            the integer stored in the Qik will be returned.
+
+        :Returns:
+          A text message or an int. See the `message` parameter above.
+
+        :Exceptions:
+          SerialException
+            IO error indicating there was a problem reading from the serial
+            connection.
+        """
+        return self._setDeviceID(value, device, message)
 
     def setPWMFrequency(self, pwm, device=_DEFAULT_DEVICE_ID, message=True):
+        """
+        Set the PWM frequency.
+
+        :Parameters:
+          pwm : `int`
+            The PWN frequency to set in hertz.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+          message : `bool`
+            If set to `True` a text message will be returned, if set to `False`
+            the integer stored in the Qik will be returned.
+
+        :Returns:
+          A text message or an int. See the `message` parameter above.
+
+        :Exceptions:
+          SerialException
+            IO error indicating there was a problem reading from the serial
+            connection.
+        """
         return self._setPWMFrequency(pwm, device, message)
 
     def setMotorShutdown(self, value, device=_DEFAULT_DEVICE_ID, message=True):
+        """
+        Set the motor shutdown on error status stored on the hardware device.
+
+        :Parameters:
+          value : `int`
+            An integer indicating the effect on the motors when an error occurs.
+            A `1` will cause the cause the motors to stop on an error and a
+            `0` will ignore errors keeping the motors running.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+          message : `bool`
+            If set to `True` a text message will be returned, if set to `False`
+            the integer stored in the Qik will be returned.
+
+        :Returns:
+          Text message indicating the status of the shutdown error.
+          A text message or an int. See the `message` parameter above.
+
+        :Exceptions:
+          SerialException
+            IO error indicating there was a problem reading from the serial
+            connection.
+        """
         return self._setMotorShutdown(value, device, message)
 
     def setSerialTimeout(self, timeout, device=_DEFAULT_DEVICE_ID,
                          message=True):
+        """
+        Set the serial timeout on the hardware device.
+
+        Setting the serial timeout to anything other than zero will cause an
+        error if the serial line is inactive for the time set. This may not be
+        a good thing as leaving the Qik idle may be a required event. Why
+        would you want the Qik to report an error when none actually occurred
+        and your Qik was just idle?
+
+        This also explains why if the Qik is set at a very low timeout that the
+        red LED will come on almost immediately. You will not even get a chance
+        to send it a command before the timeout. This would be like bricking
+        your Qik. Not a good thing.
+
+        OK, so how do we actually use the serial timeout. Good question, the
+        best way I can think of is to send the Qik a keep alive signal. One
+        way of doing this is to execute the getError() method at a little less
+        than half the timeout period. So if the timeout was set to 200ms you
+        would get the error status every 90ms. The Qik will stay alive unless
+        the keep alive signal is not seen. This should solve the problem, but
+        getting the timing right may be an issue as different Qiks will timeout
+        a little differently from others. When using more than one Qik on the
+        serial buss this may become an issue. You will need to play with some
+        different values.
+
+        :Parameters:
+          timeout : `float` or `int`
+            The timeout value between 0 - 503.04 seconds, however, any number
+            can be passed to the argument, the code will find the nearest
+            allowed value from the 72 that are available.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+          message : `bool`
+            If set to `True` a text message will be returned, if set to `False`
+            the integer stored in the Qik will be returned.
+
+        :Returns:
+          Text message indicating the status of the shutdown error.
+
+        :Exceptions:
+          SerialException
+            IO error indicating there was a problem reading from the serial
+            connection.
+        """
         return self._setSerialTimeout(self, timeout, device, message)
 
     def setM0Coast(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Set motor 0 to coast.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Exceptions:
+          SerialTimeoutException
+            If the low level serial package times out.
+          SerialException
+            IO error when the port is not open.
+        """
         self._setM0Coast(device)
 
     def setM1Coast(self, device=_DEFAULT_DEVICE_ID):
+        """
+        Set motor 1 to coast.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Exceptions:
+          SerialTimeoutException
+            If the low level serial package times out.
+          SerialException
+            IO error when the port is not open.
+        """
         self._setM1Coast(device)
 
     def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+        """
+        Set motor 0 speed.
+
+        :Parameters:
+          speed : `int`
+            Motor speed as an integer.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Exceptions:
+          SerialTimeoutException
+            If the low level serial package times out.
+          SerialException
+            IO error when the port is not open.
+        """
         self._setM0Speed(speed, device)
 
     def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+        """
+        Set motor 1 speed.
+
+        :Parameters:
+          speed : `int`
+            Motor speed as an integer.
+
+        :Keywords:
+          device : `int`
+            The device is the integer number of the hardware devices ID and
+            is only used with the Pololu Protocol. Defaults to the hardware's
+            default value.
+
+        :Exceptions:
+          SerialTimeoutException
+            If the low level serial package times out.
+          SerialException
+            IO error when the port is not open.
+        """
         self._setM1Speed(speed, device)
