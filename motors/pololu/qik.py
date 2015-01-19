@@ -31,8 +31,7 @@ class Qik(object):
         2: 'Invalid Value',
         }
 
-    def __init__(self, device, baud, version, readTimeout, writeTimeout,
-                 log=None):
+    def __init__(self, device, baud, version, readTimeout, writeTimeout, log):
         self._log = log
         self._version = version
         self._device_numbers = []
@@ -45,6 +44,7 @@ class Qik(object):
         # DO NOT default to compact protocol. If your Qik gets bricked and
         # the default it compact it cannot be unbricked with this API.
         self.setPololuProtocol()
+        self._currentPWM = {} # Default PWM
 
     def _genTimeoutList(self, const):
         """
@@ -63,6 +63,24 @@ class Qik(object):
 
         self._log and self._log.debug("Timeout list: %s", result)
         return result
+
+    def findConnectedDevices(self):
+        """
+        """
+        tmpTimeout = self._serial.timeout
+        self._serial.timeout = 0.01
+
+        for dev in range(128):
+            device = self._getDeviceID(dev)
+
+            if device is not None and int(device) not in self._currentPWM:
+                num = self._getConfig(self.PWM_PARAM, device)
+                self._currentPWM[int(device)] = num
+                freq, msg = self._CONFIG_PWM.get(num, (None, None))
+                self._log and self._log.info("Found device %s with PWM: %s",
+                                             device, freq)
+
+        self._serial.timeout = tmpTimeout
 
     def close(self):
         """
@@ -143,6 +161,7 @@ class Qik(object):
             raise e
         except ValueError as e:
             self._log and self._log.error("Error: %s", e, exc_info=True)
+            result = None
 
         return result
 
@@ -203,6 +222,7 @@ class Qik(object):
             raise e
         except TypeError as e:
             self._log and self._log.error("Error: %s", e, exc_info=True)
+            result = None
 
         return result
 
@@ -278,10 +298,16 @@ class Qik(object):
         :Returns:
           The timeout value in seconds.
         """
-        result = self._getConfig(self.SERIAL_TIMEOUT, device)
-        x = result & 0x0F
-        y = (result >> 4) & 0x07
-        return 0.262 * x * pow(2, y)
+        num = self._getConfig(self.SERIAL_TIMEOUT, device)
+
+        if isinstance(num, int):
+            x = num & 0x0F
+            y = (num >> 4) & 0x07
+            result = 0.262 * x * pow(2, y)
+        else:
+            result = num
+
+        return result
 
     def _setConfig(self, num, value, device, message):
         """

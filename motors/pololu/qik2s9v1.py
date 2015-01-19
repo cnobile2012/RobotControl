@@ -83,11 +83,11 @@ class Qik2s9v1(Qik):
         }
 
     def __init__(self, device, baud=38400, version=QIK_VER_2,
-                 readTimeout=None, writeTimeout=None):
+                 readTimeout=None, writeTimeout=None, log=None):
         super(Qik2s9v1, self).__init__(device, baud, version, readTimeout,
-                                       writeTimeout)
+                                       writeTimeout, log)
         self._timeoutToValue = self._genTimeoutList(0.262)
-        self._currentPWM = {9: 0} # Default PWM
+        self.findConnectedDevices()
 
     def getFirmwareVersion(self, device=_DEFAULT_DEVICE_ID):
         """
@@ -326,7 +326,7 @@ class Qik2s9v1(Qik):
             IO error indicating there was a problem reading from the serial
             connection.
         """
-        return self._setSerialTimeout(self, timeout, device, message)
+        return self._setSerialTimeout(timeout, device, message)
 
     def setM0Coast(self, device=_DEFAULT_DEVICE_ID):
         """
