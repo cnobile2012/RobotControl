@@ -18,7 +18,7 @@ tar	: clean
 
 tests	:
 	@(export PYTHONPATH=$(PREFIX); \
-         python central/utils/tests.py; \
+         python motors/pololu/tests.py; \
         )
 
 #----------------------------------------------------------------------
