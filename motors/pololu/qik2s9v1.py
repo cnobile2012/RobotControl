@@ -30,7 +30,7 @@ __version_info__ = tuple([ int(num) for num in __version__.split('.')])
 class Qik2s9v1(Qik):
     QIK_VER_1 = 1
     QIK_VER_2 = 2
-    _DEFAULT_DEVICE_ID = 0x09
+    DEFAULT_DEVICE_ID = 0x09
     _COMMAND = {
         'get-fw-version': 0x01,
         'get-error': 0x02,
@@ -56,7 +56,7 @@ class Qik2s9v1(Qik):
         16: 'Frame Error',
         32: 'CRC Error',
         64: 'Format Error',
-        128: 'Timeout',
+        128: 'Timeout Error',
         }
     DEVICE_ID = 0x00
     PWM_PARAM = 0x01
@@ -89,7 +89,7 @@ class Qik2s9v1(Qik):
         self._timeoutToValue = self._genTimeoutList(0.262)
         self.findConnectedDevices()
 
-    def getFirmwareVersion(self, device=_DEFAULT_DEVICE_ID):
+    def getFirmwareVersion(self, device=DEFAULT_DEVICE_ID):
         """
         Get the firmware version of the Qik 2s9v1 hardware.
 
@@ -104,7 +104,7 @@ class Qik2s9v1(Qik):
         """
         return self._getFirmwareVersion(device)
 
-    def getError(self, device=_DEFAULT_DEVICE_ID, message=True):
+    def getError(self, device=DEFAULT_DEVICE_ID, message=True):
         """
         Get the error message or value stored in the Qik 2s9v1 hardware.
 
@@ -122,7 +122,7 @@ class Qik2s9v1(Qik):
         """
         return self._getError(device, message)
 
-    def getDeviceID(self, device=_DEFAULT_DEVICE_ID):
+    def getDeviceID(self, device=DEFAULT_DEVICE_ID):
         """
         Get the device ID.
 
@@ -137,7 +137,7 @@ class Qik2s9v1(Qik):
         """
         return self._getDeviceID(device)
 
-    def getPWMFrequency(self, device=_DEFAULT_DEVICE_ID, message=True):
+    def getPWMFrequency(self, device=DEFAULT_DEVICE_ID, message=True):
         """
         Get the motor shutdown on error status stored on the hardware device.
 
@@ -155,7 +155,7 @@ class Qik2s9v1(Qik):
         """
         return self._getPWMFrequency(device, message)
 
-    def getMotorShutdown(self, device=_DEFAULT_DEVICE_ID):
+    def getMotorShutdown(self, device=DEFAULT_DEVICE_ID):
         """
         Get the motor shutdown on error status stored on the hardware device.
 
@@ -170,7 +170,7 @@ class Qik2s9v1(Qik):
         """
         return self._getMotorShutdown(device)
 
-    def getSerialTimeout(self, device=_DEFAULT_DEVICE_ID):
+    def getSerialTimeout(self, device=DEFAULT_DEVICE_ID):
         """
         Get the serial timeout stored on the hardware device.
 
@@ -191,7 +191,7 @@ class Qik2s9v1(Qik):
         """
         return self._getSerialTimeout(device)
 
-    def setDeviceID(self, value, device=_DEFAULT_DEVICE_ID, message=True):
+    def setDeviceID(self, value, device=DEFAULT_DEVICE_ID, message=True):
         """
         Set the hardware device number. This is only needed if more that one
         device is on the same serial buss.
@@ -219,7 +219,7 @@ class Qik2s9v1(Qik):
         """
         return self._setDeviceID(value, device, message)
 
-    def setPWMFrequency(self, pwm, device=_DEFAULT_DEVICE_ID, message=True):
+    def setPWMFrequency(self, pwm, device=DEFAULT_DEVICE_ID, message=True):
         """
         Set the PWM frequency.
 
@@ -246,7 +246,7 @@ class Qik2s9v1(Qik):
         """
         return self._setPWMFrequency(pwm, device, message)
 
-    def setMotorShutdown(self, value, device=_DEFAULT_DEVICE_ID, message=True):
+    def setMotorShutdown(self, value, device=DEFAULT_DEVICE_ID, message=True):
         """
         Set the motor shutdown on error status stored on the hardware device.
 
@@ -276,8 +276,7 @@ class Qik2s9v1(Qik):
         """
         return self._setMotorShutdown(value, device, message)
 
-    def setSerialTimeout(self, timeout, device=_DEFAULT_DEVICE_ID,
-                         message=True):
+    def setSerialTimeout(self, timeout, device=DEFAULT_DEVICE_ID, message=True):
         """
         Set the serial timeout on the hardware device.
 
@@ -330,7 +329,7 @@ class Qik2s9v1(Qik):
         """
         return self._setSerialTimeout(timeout, device, message)
 
-    def setM0Coast(self, device=_DEFAULT_DEVICE_ID):
+    def setM0Coast(self, device=DEFAULT_DEVICE_ID):
         """
         Set motor 0 to coast.
 
@@ -348,7 +347,7 @@ class Qik2s9v1(Qik):
         """
         self._setM0Coast(device)
 
-    def setM1Coast(self, device=_DEFAULT_DEVICE_ID):
+    def setM1Coast(self, device=DEFAULT_DEVICE_ID):
         """
         Set motor 1 to coast.
 
@@ -366,7 +365,7 @@ class Qik2s9v1(Qik):
         """
         self._setM1Coast(device)
 
-    def setM0Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+    def setM0Speed(self, speed, device=DEFAULT_DEVICE_ID):
         """
         Set motor 0 speed.
 
@@ -388,7 +387,7 @@ class Qik2s9v1(Qik):
         """
         self._setM0Speed(speed, device)
 
-    def setM1Speed(self, speed, device=_DEFAULT_DEVICE_ID):
+    def setM1Speed(self, speed, device=DEFAULT_DEVICE_ID):
         """
         Set motor 1 speed.
 
