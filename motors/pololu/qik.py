@@ -89,6 +89,9 @@ class Qik(object):
         if self._serial:
             self._serial.close()
 
+    def isOpen(self):
+        return self._serial.isOpen()
+
     def setCompactProtocol(self):
         """
         Set the compact protocol.
@@ -97,12 +100,18 @@ class Qik(object):
         self._serial.write(bytes(self._BAUD_DETECT))
         self._log and self._log.debug("Compact protocol has been set.")
 
+    def isCompactProtocol(self):
+        return self._compact == True
+
     def setPololuProtocol(self):
         """
         Set the pololu protocol.
         """
         self._compact = False
         self._log and self._log.debug("Pololu protocol has been set.")
+
+    def isPololuProtocol(self):
+        return self._compact == False
 
     def _writeData(self, command, device, params=()):
         """
