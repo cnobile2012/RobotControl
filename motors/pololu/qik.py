@@ -191,8 +191,9 @@ class Qik(object):
             raise e
         except TypeError as e:
             self._log and self._log.error("Error: %s", e, exc_info=True)
+            result = None
 
-        if message:
+        if result is not None and message:
             result = self._ERRORS.get(result, result)
 
         return result
@@ -344,8 +345,9 @@ class Qik(object):
             raise e
         except TypeError as e:
             self._log and self._log.error("Error: %s", e, exc_info=True)
+            result = None
 
-        if message:
+        if result is not None and message:
             result = self._CONFIG_RETURN.get(
                 result, 'Unknown return value: {}'.format(result))
 

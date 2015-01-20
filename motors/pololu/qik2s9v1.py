@@ -285,12 +285,14 @@ class Qik2s9v1(Qik):
         error if the serial line is inactive for the time set. This may not be
         a good thing as leaving the Qik idle may be a required event. Why
         would you want the Qik to report an error when none actually occurred
-        and your Qik was just idle?
+        and your Qik was just idle? This happens with or without the motors
+        running.
 
         This also explains why if the Qik is set at a very low timeout that the
         red LED will come on almost immediately. You will not even get a chance
-        to send it a command before the timeout. This would be like bricking
-        your Qik. Not a good thing.
+        to send it a command before the timeout. This would be like temporarily
+        bricking your Qik. Not a good thing though it's easy to fix by just
+        setting the timeout to 0 again.
 
         OK, so how do we actually use the serial timeout. Good question, the
         best way I can think of is to send the Qik a keep alive signal. One
