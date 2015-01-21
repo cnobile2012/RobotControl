@@ -24,10 +24,13 @@ __docformat__ = "restructuredtext en"
 from .qik import Qik
 
 __version__ = '1.0.0'
-__version_info__ = tuple([ int(num) for num in __version__.split('.')])
+__version_info__ = tuple([int(num) for num in __version__.split('.')])
 
 
 class Qik2s9v1(Qik):
+    """
+    Implimentation of the Pololu motor controller interface for the Qik 2s9v1 board.
+    """
     QIK_VER_1 = 1
     QIK_VER_2 = 2
     DEFAULT_DEVICE_ID = 0x09
@@ -46,7 +49,7 @@ class Qik2s9v1(Qik):
         'm1-forward-8bit': 0x0D,
         'm1-reverse-7bit': 0x0E,
         'm1-reverse-8bit': 0x0F,
-       }
+        }
     _ERRORS = {
         0: 'OK',
         1: 'Bit 0 Unused',
