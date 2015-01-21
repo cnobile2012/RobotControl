@@ -1,9 +1,0 @@
-# PIP requirements
-#
-# $ pip install -r requirments.txt
-#
-
-# http://pyserial.sourceforge.net/shortintro.html
-pyserial
-
-ipython

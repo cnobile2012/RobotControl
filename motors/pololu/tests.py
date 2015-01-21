@@ -18,13 +18,29 @@ class TestQik2s9v1(unittest.TestCase):
 
     def __init__(self, name):
         super(TestQik2s9v1, self).__init__(name)
+        # Timeouts [(0.0, 0), (0.262, 1), ...]
+        self._timeouts = self.genTimeoutList()
+
+    def genTimeoutList(self, const=0.262):
+        result = []
+
+        for v in range(128):
+            x = v & 0x0F
+            y = (v >> 4) & 0x07
+
+            if not y or (y and x > 7):
+                result.append((const * x * 2**y, v))
+
+        return result
 
     def setUp(self):
         self._qik = Qik2s9v1(self._DEFAULT_TTY, readTimeout=5)
 
     def tearDown(self):
         if self._qik.isOpen():
-            self._qik.setDeviceID(self._qik.DEFAULT_DEVICE_ID)
+            for d in self._qik.currentPWM:
+                self._qik.setDeviceID(self._qik.DEFAULT_DEVICE_ID, device=d)
+
             self._qik.getError()
             self._qik.setPWMFrequency(31500)
             self._qik.setMotorShutdown(True)
@@ -74,12 +90,12 @@ class TestQik2s9v1(unittest.TestCase):
         for i in range(2):
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
             result = self._qik.getError(message=False)
-            msg = "{}: Invalid result '{}' should be '{}'.".format(
+            msg = "{}: Invalid error '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, error)
             self.assertTrue(result == error, msg=msg)
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
             result = self._qik.getError()
-            msg = "{}: Invalid result '{}' should be '{}'.".format(
+            msg = "{}: Invalid error '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, self._qik._ERRORS.get(error))
             self.assertTrue(result == self._qik._ERRORS.get(error), msg=msg)
             self._qik.setCompactProtocol()
@@ -90,32 +106,66 @@ class TestQik2s9v1(unittest.TestCase):
 
         for i in range(2):
             self._qik.setSerialTimeout(timeout)
-            time.sleep(0.263)
+            time.sleep(0.275)
             result = self._qik.getError(message=False)
-            msg = "{}: Invalid result '{}' should be '{}'.".format(
+            msg = "{}: Invalid error '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, error)
             self.assertTrue(result == error, msg=msg)
-            time.sleep(0.263)
+            time.sleep(0.275)
             result = self._qik.getError()
-            msg = "{}: Invalid result '{}' should be '{}'.".format(
+            msg = "{}: Invalid error '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, self._qik._ERRORS.get(error))
             self.assertTrue(result == self._qik._ERRORS.get(error), msg=msg)
             self._qik.setCompactProtocol()
 
-    @unittest.skip("Temporary skipped")
+    #@unittest.skip("Temporarily skipped")
     def test_getDeviceID(self):
+        """
+        Only test Pololu protocol, it's the only protocol that uses the device
+        ID.
+        """
         devices = (self._qik.DEFAULT_DEVICE_ID, 127)
+        # Default device
+        result = self._qik.getDeviceID(device=devices[0])
+        msg = "Invalid device '{}' should be '{}'.".format(
+            self._PORTOCOL_MAP.get(0), result, devices[0])
+        self.assertTrue(result == devices[0], msg=msg)
+        # Reset device
+        self._qik.setDeviceID(devices[1], device=devices[0])
+        result = self._qik.getDeviceID(device=devices[1])
+        msg = "{}: Invalid device '{}' should be '{}'.".format(
+            self._PORTOCOL_MAP.get(0), result, devices[1])
+        self.assertTrue(result == devices[1], msg=msg)
 
+    def test_getPWMFrequency(self):
         for i in range(2):
-            result = self._qik.getDeviceID()
-            msg = "{}: Invalid device '{}' should be '{}'.".format(
-                self._PORTOCOL_MAP.get(i), result, devices[0])
-            self.assertTrue(result == devices[0], msg=msg)
-            self._qik.setDeviceID(devices[1])
-            result = self._qik.getDeviceID()
-            msg = "{}: Invalid device '{}' should be '{}'.".format(
-                self._PORTOCOL_MAP.get(i), result, devices[1])
-            self.assertTrue(result == devices[1], msg=msg)
+            result = self._qik.getPWMFrequency()
+            msg = "{}: Invalid PWM frequency '{}' should be '{}'.".format(
+                self._PORTOCOL_MAP.get(i), result,
+                self._qik._CONFIG_PWM.get(0)[1])
+            self.assertTrue(result == self._qik._CONFIG_PWM.get(0)[1], msg=msg)
+            result = self._qik.getPWMFrequency(message=False)
+            msg = "{}: Invalid PWM frequency '{}' should be '{}'.".format(
+                self._PORTOCOL_MAP.get(i), result,
+                self._qik._CONFIG_PWM.get(0)[0])
+            self.assertTrue(result == self._qik._CONFIG_PWM.get(0)[0], msg=msg)
+            self._qik.setCompactProtocol()
+
+    def test_getMotorShutdown(self):
+        for i in range(2):
+            result = self._qik.getMotorShutdown()
+            msg = ("{}: Invalid motor shutdown value '{}' should "
+                   "be '{}'.").format(
+                self._PORTOCOL_MAP.get(i), result,
+                self._qik._CONFIG_MOTOR.get(self._qik.MOTORS_STOPPED))
+            self.assertTrue(result == self._qik._CONFIG_MOTOR.get(
+                self._qik.MOTORS_STOPPED), msg=msg)
+            self._qik.setCompactProtocol()
+
+    def test_getSerialTimeout(self):
+        for i in range(2):
+            result = self._qik.getSerialTimeout()
+
 
 
 

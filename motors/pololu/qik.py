@@ -44,7 +44,7 @@ class Qik(object):
         # DO NOT default to compact protocol. If your Qik gets bricked and
         # the default it compact it cannot be unbricked with this API.
         self.setPololuProtocol()
-        self._currentPWM = {} # Default PWM
+        self.currentPWM = {} # Default PWM
 
     def _genTimeoutList(self, const):
         """
@@ -73,9 +73,9 @@ class Qik(object):
         for dev in range(128):
             device = self._getDeviceID(dev)
 
-            if device is not None and int(device) not in self._currentPWM:
+            if device is not None and int(device) not in self.currentPWM:
                 num = self._getConfig(self.PWM_PARAM, device)
-                self._currentPWM[int(device)] = num
+                self.currentPWM[int(device)] = num
                 freq, msg = self._CONFIG_PWM.get(num, (None, None))
                 self._log and self._log.info("Found device %s with PWM: %s",
                                              device, freq)
@@ -384,11 +384,11 @@ class Qik(object):
 
         # Try to keep the correct PWM for a Qik board.
         if value != device:
-            num = self._currentPWM.pop(device)
+            num = self.currentPWM.pop(device)
         else:
             num = 0
 
-        self._currentPWM[value] = num
+        self.currentPWM[value] = num
         return result
 
     def _setPWMFrequency(self, pwm, device, message):
@@ -415,7 +415,7 @@ class Qik(object):
             self._log and self._log.error(msg)
             raise ValueError(msg)
 
-        self._currentPWM[device] = value
+        self.currentPWM[device] = value
         return self._setConfig(self.PWM_PARAM, value, device, message)
 
     def _setMotorShutdown(self, value, device, message):
@@ -536,7 +536,7 @@ class Qik(object):
             reverse = True
 
         # 0 and 2 for Qik 2s9v1, 0, 2, and 4 for 2s12v10
-        if self._currentPWM.get(device) in (0, 2, 4,) and speed > 127:
+        if self.currentPWM.get(device) in (0, 2, 4,) and speed > 127:
             speed = 127
 
         if speed > 127:
