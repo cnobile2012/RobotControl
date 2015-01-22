@@ -19,7 +19,7 @@ class TestQik2s9v1(unittest.TestCase):
     def __init__(self, name):
         super(TestQik2s9v1, self).__init__(name)
         # Timeouts [(0.0, 0), (0.262, 1), ...]
-        self._timeouts = self.genTimeoutList()
+        self._timeoutMap = dict(self.genTimeoutList())
 
     def genTimeoutList(self, const=0.262):
         result = []
@@ -29,7 +29,7 @@ class TestQik2s9v1(unittest.TestCase):
             y = (v >> 4) & 0x07
 
             if not y or (y and x > 7):
-                result.append((const * x * 2**y, v))
+                result.append((v, const * x * 2**y))
 
         return result
 
@@ -165,8 +165,34 @@ class TestQik2s9v1(unittest.TestCase):
     def test_getSerialTimeout(self):
         for i in range(2):
             result = self._qik.getSerialTimeout()
+            msg = ("{}: Invalid serial timeout value '{}' should "
+                   "be '{}'.").format(self._PORTOCOL_MAP.get(i), result,
+                                      self._timeoutMap.get(0))
+            self.assertTrue(result == self._timeoutMap.get(0), msg=msg)
+            self._qik.setSerialTimeout(200.0)
+            result = self._qik.getSerialTimeout()
+            msg = ("{}: Invalid serial timeout value '{}' should "
+                   "be '{}'.").format(self._PORTOCOL_MAP.get(i), result,
+                                      self._timeoutMap.get(108))
+            self.assertTrue(result == self._timeoutMap.get(108), msg=msg)
+            self._qik.setCompactProtocol()
+            self._qik.setSerialTimeout(0.0)
 
+    def test_setDeviceID(self):
+        devices = (self._qik.DEFAULT_DEVICE_ID, 127)
 
+        for i in range(2):
+            result = self._qik.setDeviceID(devices[1], devices[0])
+            msg = ("{}: Invalid device ID '{}' should be '{}'.").format(
+                self._PORTOCOL_MAP.get(i), result, 'OK')
+            self.assertTrue(result == 'OK', msg=msg)
+
+            result = self._qik.setDeviceID(devices[0], devices[1],
+                                           message=False)
+            msg = ("{}: Invalid device ID '{}' should be '{}'.").format(
+                self._PORTOCOL_MAP.get(i), result, devices[0])
+            self.assertTrue(result == 0, msg=msg)
+            self._qik.setCompactProtocol()
 
 
 
