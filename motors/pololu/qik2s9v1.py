@@ -29,7 +29,8 @@ __version_info__ = tuple([int(num) for num in __version__.split('.')])
 
 class Qik2s9v1(Qik):
     """
-    Implimentation of the Pololu motor controller interface for the Qik 2s9v1 board.
+    Implimentation of the Pololu motor controller interface for the Qik 2s9v1
+    board.
     """
     QIK_VER_1 = 1
     QIK_VER_2 = 2

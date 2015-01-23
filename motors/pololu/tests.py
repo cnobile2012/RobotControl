@@ -186,13 +186,33 @@ class TestQik2s9v1(unittest.TestCase):
             msg = ("{}: Invalid device ID '{}' should be '{}'.").format(
                 self._PORTOCOL_MAP.get(i), result, 'OK')
             self.assertTrue(result == 'OK', msg=msg)
-
             result = self._qik.setDeviceID(devices[0], devices[1],
                                            message=False)
             msg = ("{}: Invalid device ID '{}' should be '{}'.").format(
                 self._PORTOCOL_MAP.get(i), result, devices[0])
             self.assertTrue(result == 0, msg=msg)
             self._qik.setCompactProtocol()
+
+    def test_setPWMFrequency(self):
+        pwms = [v[0] for v in self._qik._CONFIG_PWM.values()]
+        nums = dict([(v[0], k) for k, v in self._qik._CONFIG_PWM.items()])
+
+        for i in range(2):
+            for pwm in pwms:
+                result = self._qik.setPWMFrequency(pwm)
+                rtn = self._qik._CONFIG_RETURN.get(0)
+                msg = ("{}: Invalid PM return text '{}' should "
+                       "be '{}'.").format(
+                    self._PORTOCOL_MAP.get(i), result, rtn)
+                self.assertTrue(result == rtn, msg=msg)
+                result = self._qik.setPWMFrequency(pwm, message=False)
+                msg = ("{}: Invalid PWM return value '{}' should "
+                       "be '{}'.").format(self._PORTOCOL_MAP.get(i), result, 0)
+                self.assertTrue(result == 0, msg=msg)
+
+            self._qik.setCompactProtocol()
+
+
 
 
 
