@@ -3,10 +3,22 @@
 # motors/pololu/tests.py
 #
 
+import os
 import unittest
 import time
+import logging
 
 from motors.pololu import Qik2s9v1
+
+
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         '..', '..', 'logs'))
+
+def setupLogger(fullpath=None, level=logging.DEBUG):
+    FORMAT = ("%(asctime)s %(levelname)s %(module)s %(funcName)s "
+              "[line:%(lineno)d] %(message)s")
+    logging.basicConfig(filename=fullpath, format=FORMAT, level=level)
+    return logging.getLogger()
 
 
 class TestQik2s9v1(unittest.TestCase):
@@ -20,6 +32,8 @@ class TestQik2s9v1(unittest.TestCase):
         super(TestQik2s9v1, self).__init__(name)
         # Timeouts [(0.0, 0), (0.262, 1), ...]
         self._timeoutMap = dict(self.genTimeoutList())
+        logFilePath = os.path.join(BASE_PATH, 'pololu_quk2s9v1.log')
+        self._log = setupLogger(fullpath=logFilePath)
 
     def genTimeoutList(self, const=0.262):
         result = []
@@ -34,9 +48,12 @@ class TestQik2s9v1(unittest.TestCase):
         return result
 
     def setUp(self):
-        self._qik = Qik2s9v1(self._DEFAULT_TTY, readTimeout=5)
+        self._log.debug("Processing setUp")
+        self._qik = Qik2s9v1(self._DEFAULT_TTY, readTimeout=5, log=self._log)
 
     def tearDown(self):
+        self._log.debug("Processing tearDown")
+
         if self._qik.isOpen():
             for d in self._qik.currentPWM:
                 self._qik.setDeviceID(self._qik.DEFAULT_DEVICE_ID, device=d)
@@ -52,6 +69,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.close()
 
     def test_close(self):
+        self._log.debug("Processing test_close")
         self.assertTrue(self._qik.isOpen() == True)
         self._qik.close()
         self.assertTrue(self._qik.isOpen() == False)
@@ -60,6 +78,7 @@ class TestQik2s9v1(unittest.TestCase):
         """
         The compact protocol is not the default.
         """
+        self._log.debug("Processing test_setCompactProtocol")
         self.assertTrue(self._qik.isCompactProtocol() == False)
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.isCompactProtocol() == True)
@@ -68,11 +87,13 @@ class TestQik2s9v1(unittest.TestCase):
         """
         The pololu portocol is the default.
         """
+        self._log.debug("Processing test_setPololuProtocol")
         self.assertTrue(self._qik.isPololuProtocol() == True)
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.isPololuProtocol() == False)
 
     def test_getFirmwareVersion(self):
+        self._log.debug("Processing test_getFirmwareVersion")
         self.assertTrue(self._qik.getFirmwareVersion() in (1, 2))
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.getFirmwareVersion() in (1, 2))
@@ -84,7 +105,8 @@ class TestQik2s9v1(unittest.TestCase):
     # Test for CRC Error
 
     def test_getError_FormatError(self):
-        command = 0x70 # Works in both protocols
+        self._log.debug("Processing test_getError_FormatError")
+        command = 0x70 # Bad command breaks in both protocols
         num = 64
         error = self._qik._ERRORS.get(num)
 
@@ -102,6 +124,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_getError_TimeoutError(self):
+        self._log.debug("Processing test_getError_TimeoutError")
         timeout = 0.262
         num = 128
         error = self._qik._ERRORS.get(num)
@@ -113,6 +136,7 @@ class TestQik2s9v1(unittest.TestCase):
             msg = "{}: Invalid error '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, [num])
             self.assertTrue(num in result and len(result) == 1, msg=msg)
+            self._qik.setSerialTimeout(timeout)
             time.sleep(0.275)
             result = self._qik.getError()
             msg = "{}: Invalid error '{}' should be '{}'.".format(
@@ -126,6 +150,7 @@ class TestQik2s9v1(unittest.TestCase):
         Only test Pololu protocol, it's the only protocol that uses the device
         ID.
         """
+        self._log.debug("Processing test_getDeviceID")
         devices = (self._qik.DEFAULT_DEVICE_ID, 127)
         # Default device
         result = self._qik.getDeviceID(device=devices[0])
@@ -140,6 +165,8 @@ class TestQik2s9v1(unittest.TestCase):
         self.assertTrue(result == devices[1], msg=msg)
 
     def test_getPWMFrequency(self):
+        self._log.debug("Processing test_getPWMFrequency")
+
         for i in range(2):
             result = self._qik.getPWMFrequency()
             msg = "{}: Invalid PWM frequency '{}' should be '{}'.".format(
@@ -154,6 +181,8 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_getMotorShutdown(self):
+        self._log.debug("Processing test_getMotorShutdown")
+
         for i in range(2):
             result = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should "
@@ -165,6 +194,8 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_getSerialTimeout(self):
+        self._log.debug("Processing test_getSerialTimeout")
+
         for i in range(2):
             result = self._qik.getSerialTimeout()
             msg = ("{}: Invalid serial timeout value '{}' should "
@@ -181,6 +212,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setSerialTimeout(0.0)
 
     def test_setDeviceID(self):
+        self._log.debug("Processing test_setDeviceID")
         devices = (self._qik.DEFAULT_DEVICE_ID, 127)
 
         for i in range(2):
@@ -196,6 +228,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_setPWMFrequency(self):
+        self._log.debug("Processing test_setPWMFrequency")
         pwms = [v[0] for v in self._qik._CONFIG_PWM.values()]
         nums = dict([(v[0], k) for k, v in self._qik._CONFIG_PWM.items()])
 
@@ -215,6 +248,8 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_setMotorShutdown(self):
+        self._log.debug("Processing test_setMotorShutdown")
+
         for i in range(2):
             pass
 
