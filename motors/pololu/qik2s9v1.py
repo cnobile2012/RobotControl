@@ -122,7 +122,8 @@ class Qik2s9v1(Qik):
             the integer stored in the Qik will be returned.
 
         :Returns:
-          A text message or an int. See the `message` parameter above.
+          A list of text messages, integers, or and empty list. See the
+          `message` parameter above.
         """
         return self._getError(device, message)
 

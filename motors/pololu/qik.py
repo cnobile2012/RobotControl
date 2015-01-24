@@ -187,23 +187,32 @@ class Qik(object):
             the integer stored in the Qik will be returned.
 
         :Returns:
-          A text message or an int. See the `message` parameter above.
+          A list of text messages, integers, or and empty list. See the
+          `message` parameter above.
         """
         cmd = self._COMMAND.get('get-error')
         self._writeData(cmd, device)
+        result = []
+        bits = []
 
         try:
-            result = self._serial.read(size=1)
-            result = ord(result)
+            num = self._serial.read(size=1)
+            num = ord(num)
         except serial.SerialException as e:
             self._log and self._log.error("Error: %s", e, exc_info=True)
             raise e
         except TypeError as e:
             self._log and self._log.error("Error: %s", e, exc_info=True)
-            result = None
+            num = 0
 
-        if result is not None and message:
-            result = self._ERRORS.get(result, result)
+        for i in range(7, -1, -1):
+            bit = num & (1 << i)
+
+            if bit:
+                if message:
+                    result.append(self._ERRORS.get(bit))
+                else:
+                    result.append(bit)
 
         return result
 
