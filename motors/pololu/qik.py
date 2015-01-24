@@ -30,6 +30,7 @@ class Qik(object):
         1: 'Invalid Parameter',
         2: 'Invalid Value',
         }
+    _BOOL_TO_INT = {False: 0, True: 1}
 
     def __init__(self, device, baud, version, readTimeout, writeTimeout, log):
         self._log = log
@@ -169,7 +170,6 @@ class Qik(object):
             self._log and self._log.error("Error: %s", e, exc_info=True)
             raise e
         except ValueError as e:
-            self._log and self._log.error("Error: %s", e, exc_info=True)
             result = None
 
         return result
@@ -202,7 +202,6 @@ class Qik(object):
             self._log and self._log.error("Error: %s", e, exc_info=True)
             raise e
         except TypeError as e:
-            self._log and self._log.error("Error: %s", e, exc_info=True)
             num = 0
 
         for i in range(7, -1, -1):
@@ -240,7 +239,6 @@ class Qik(object):
             self._log and self._log.error("Error: %s", e, exc_info=True)
             raise e
         except TypeError as e:
-            self._log and self._log.error("Error: %s", e, exc_info=True)
             result = None
 
         return result
@@ -362,7 +360,6 @@ class Qik(object):
             self._log and self._log.error("Error: %s", e, exc_info=True)
             raise e
         except TypeError as e:
-            self._log and self._log.error("Error: %s", e, exc_info=True)
             result = None
 
         if result is not None and message:
@@ -448,6 +445,7 @@ class Qik(object):
             raise ValueError(
                 "Invalid motor shutdown on error value: {}".format(value))
 
+        value = self._BOOL_TO_INT.get(value, 1)
         return self._setConfig(self.MOTOR_ERR_SHUTDOWN, value, device, message)
 
     def _setSerialTimeout(self, timeout, device, message):
