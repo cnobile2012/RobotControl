@@ -85,37 +85,39 @@ class TestQik2s9v1(unittest.TestCase):
 
     def test_getError_FormatError(self):
         command = 0x70 # Works in both protocols
-        error = 64
+        num = 64
+        error = self._qik._ERRORS.get(num)
 
         for i in range(2):
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
             result = self._qik.getError(message=False)
             msg = "{}: Invalid error '{}' should be '{}'.".format(
-                self._PORTOCOL_MAP.get(i), result, error)
-            self.assertTrue(result == error, msg=msg)
+                self._PORTOCOL_MAP.get(i), result, [num])
+            self.assertTrue(num in result and len(result) == 1, msg=msg)
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
             result = self._qik.getError()
             msg = "{}: Invalid error '{}' should be '{}'.".format(
-                self._PORTOCOL_MAP.get(i), result, self._qik._ERRORS.get(error))
-            self.assertTrue(result == self._qik._ERRORS.get(error), msg=msg)
+                self._PORTOCOL_MAP.get(i), result, [error])
+            self.assertTrue(error in result and len(result) == 1, msg=msg)
             self._qik.setCompactProtocol()
 
     def test_getError_TimeoutError(self):
         timeout = 0.262
-        error = 128
+        num = 128
+        error = self._qik._ERRORS.get(num)
 
         for i in range(2):
             self._qik.setSerialTimeout(timeout)
             time.sleep(0.275)
             result = self._qik.getError(message=False)
             msg = "{}: Invalid error '{}' should be '{}'.".format(
-                self._PORTOCOL_MAP.get(i), result, error)
-            self.assertTrue(result == error, msg=msg)
+                self._PORTOCOL_MAP.get(i), result, [num])
+            self.assertTrue(num in result and len(result) == 1, msg=msg)
             time.sleep(0.275)
             result = self._qik.getError()
             msg = "{}: Invalid error '{}' should be '{}'.".format(
-                self._PORTOCOL_MAP.get(i), result, self._qik._ERRORS.get(error))
-            self.assertTrue(result == self._qik._ERRORS.get(error), msg=msg)
+                self._PORTOCOL_MAP.get(i), result, [error])
+            self.assertTrue(error in result and len(result) == 1, msg=msg)
             self._qik.setCompactProtocol()
 
     #@unittest.skip("Temporarily skipped")
@@ -212,9 +214,11 @@ class TestQik2s9v1(unittest.TestCase):
 
             self._qik.setCompactProtocol()
 
+    def test_setMotorShutdown(self):
+        for i in range(2):
+            pass
 
-
-
+        # Create an error condition to test this method.
 
 
 
