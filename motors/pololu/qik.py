@@ -146,7 +146,8 @@ class Qik(object):
             sequence.append(param)
 
         self._serial.write(bytearray(sequence))
-        self._log and self._log.debug("Wrote byte sequence: %s", sequence)
+        self._log and self._log.debug("Wrote byte sequence: %s",
+                                      [hex(num) for num in sequence])
 
     def _getFirmwareVersion(self, device):
         """
@@ -441,10 +442,6 @@ class Qik(object):
         :Returns:
           Text message indicating the status of the shutdown error.
         """
-        if value not in self._CONFIG_MOTOR:
-            raise ValueError(
-                "Invalid motor shutdown on error value: {}".format(value))
-
         value = self._BOOL_TO_INT.get(value, 1)
         return self._setConfig(self.MOTOR_ERR_SHUTDOWN, value, device, message)
 
