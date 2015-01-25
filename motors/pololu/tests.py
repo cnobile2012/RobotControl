@@ -51,11 +51,11 @@ class TestQik2s9v1(unittest.TestCase):
         return result
 
     def setUp(self):
-        self._log.debug("Processing setUp")
+        self._log.debug("Processing")
         self._qik = Qik2s9v1(self._DEFAULT_TTY, readTimeout=5, log=self._log)
 
     def tearDown(self):
-        self._log.debug("Processing tearDown")
+        self._log.debug("Processing")
 
         if self._qik.isOpen():
             for d in self._qik.currentPWM:
@@ -70,9 +70,10 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setM1Speed(0)
             self._qik.setM1Coast()
             self._qik.close()
+            self._qik = None
 
     def test_close(self):
-        self._log.debug("Processing test_close")
+        self._log.debug("Processing")
         self.assertTrue(self._qik.isOpen() == True)
         self._qik.close()
         self.assertTrue(self._qik.isOpen() == False)
@@ -81,7 +82,7 @@ class TestQik2s9v1(unittest.TestCase):
         """
         The compact protocol is not the default.
         """
-        self._log.debug("Processing test_setCompactProtocol")
+        self._log.debug("Processing")
         self.assertTrue(self._qik.isCompactProtocol() == False)
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.isCompactProtocol() == True)
@@ -90,13 +91,13 @@ class TestQik2s9v1(unittest.TestCase):
         """
         The pololu portocol is the default.
         """
-        self._log.debug("Processing test_setPololuProtocol")
+        self._log.debug("Processing")
         self.assertTrue(self._qik.isPololuProtocol() == True)
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.isPololuProtocol() == False)
 
     def test_getFirmwareVersion(self):
-        self._log.debug("Processing test_getFirmwareVersion")
+        self._log.debug("Processing")
         self.assertTrue(self._qik.getFirmwareVersion() in (1, 2))
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.getFirmwareVersion() in (1, 2))
@@ -108,7 +109,7 @@ class TestQik2s9v1(unittest.TestCase):
     # Test for CRC Error
 
     def test_getError_FormatError(self):
-        self._log.debug("Processing test_getError_FormatError")
+        self._log.debug("Processing")
         command = 0x70 # Bad command breaks in both protocols
         num = 64
         error = self._qik._ERRORS.get(num)
@@ -127,7 +128,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_getError_TimeoutError(self):
-        self._log.debug("Processing test_getError_TimeoutError")
+        self._log.debug("Processing")
         timeout = 0.262
         num = 128
         error = self._qik._ERRORS.get(num)
@@ -153,7 +154,7 @@ class TestQik2s9v1(unittest.TestCase):
         Only test Pololu protocol, it's the only protocol that uses the device
         ID.
         """
-        self._log.debug("Processing test_getDeviceID")
+        self._log.debug("Processing")
         devices = (self._qik.DEFAULT_DEVICE_ID, 127)
         # Default device
         result = self._qik.getDeviceID(device=devices[0])
@@ -168,7 +169,7 @@ class TestQik2s9v1(unittest.TestCase):
         self.assertTrue(result == devices[1], msg=msg)
 
     def test_getPWMFrequency(self):
-        self._log.debug("Processing test_getPWMFrequency")
+        self._log.debug("Processing")
 
         for i in range(2):
             result = self._qik.getPWMFrequency()
@@ -184,7 +185,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_getMotorShutdown(self):
-        self._log.debug("Processing test_getMotorShutdown")
+        self._log.debug("Processing")
 
         for i in range(2):
             result = self._qik.getMotorShutdown()
@@ -196,7 +197,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_getSerialTimeout(self):
-        self._log.debug("Processing test_getSerialTimeout")
+        self._log.debug("Processing")
 
         for i in range(2):
             result = self._qik.getSerialTimeout()
@@ -214,7 +215,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setSerialTimeout(0.0)
 
     def test_setDeviceID(self):
-        self._log.debug("Processing test_setDeviceID")
+        self._log.debug("Processing")
         devices = (self._qik.DEFAULT_DEVICE_ID, 127)
 
         for i in range(2):
@@ -230,7 +231,7 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_setPWMFrequency(self):
-        self._log.debug("Processing test_setPWMFrequency")
+        self._log.debug("Processing")
         pwms = [v[0] for v in self._qik._CONFIG_PWM.values()]
         nums = dict([(v[0], k) for k, v in self._qik._CONFIG_PWM.items()])
 
@@ -249,20 +250,20 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setCompactProtocol()
 
     def test_setMotorShutdown(self):
-        self._log.debug("Processing test_setMotorShutdown")
+        self._log.debug("Processing")
         command = 0x70 # Bad command breaks in both protocols
-        num = 64
-        error = self._qik._ERRORS.get(num)
+        error = self._qik._ERRORS.get(64) # Format error
         rtn = self._qik._CONFIG_RETURN.get(0)
 
         for i in range(2):
+            # Start with default motor stop on errors
+            sdValue = self._qik._CONFIG_MOTOR.get(True)
+            # Start up motor M0
             self._qik.setM0Speed(50)
             result = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
-                   ).format(self._PORTOCOL_MAP.get(i), result,
-                            self._qik._CONFIG_MOTOR.get(True))
-            self.assertTrue(result == self._qik._CONFIG_MOTOR.get(True),
-                            msg=msg)
+                   ).format(self._PORTOCOL_MAP.get(i), result, sdValue)
+            self.assertTrue(result == sdValue, msg=msg)
             time.sleep(0.5)
             # Create an error condition that will stop the motors.
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
@@ -270,23 +271,45 @@ class TestQik2s9v1(unittest.TestCase):
             msg = ("{}: Invalid response error text '{}' should be '{}'."
                    ).format(self._PORTOCOL_MAP.get(i), result, [error])
             self.assertTrue(error in result and len(result) == 1, msg=msg)
+
             # Switch to non-stopping motors
+            sdValue = self._qik._CONFIG_MOTOR.get(False)
             result = self._qik.setMotorShutdown(False)
             msg = "{}: Invalid response '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, rtn)
             self.assertTrue(result == rtn, msg=msg)
             result = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
-                   ).format(self._PORTOCOL_MAP.get(i), result,
-                            self._qik._CONFIG_MOTOR.get(False))
-            self.assertTrue(result == self._qik._CONFIG_MOTOR.get(False),
-                            msg=msg)
+                   ).format(self._PORTOCOL_MAP.get(i), result, sdValue)
+            self.assertTrue(result == sdValue, msg=msg)
+            # Start up motor M0, If change motor shutdown need to come to
+            # full stop.
+            self._qik.setM0Speed(0)
+            self._qik.setM0Speed(-50)
+            result = self._qik.getMotorShutdown()
+            msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
+                   ).format(self._PORTOCOL_MAP.get(i), result, sdValue)
+            self.assertTrue(result == sdValue, msg=msg)
+            time.sleep(0.5)
+            # Create an error condition that will not stop the motors.
+            self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
+            result = self._qik.getError()
+            msg = ("{}: Invalid response error text '{}' should be '{}'."
+                   ).format(self._PORTOCOL_MAP.get(i), result, [error])
+            self.assertTrue(error in result and len(result) == 1, msg=msg)
+            self._qik.setM0Speed(0)
+            self._qik.setM0Coast()
+
             # Switch back to stopping motor.
             result = self._qik.setMotorShutdown(True)
             msg = "{}: Invalid response '{}' should be '{}'.".format(
                 self._PORTOCOL_MAP.get(i), result, rtn)
             self.assertTrue(result == rtn, msg=msg)
             self._qik.setCompactProtocol()
+
+    def test_setSerialTimeout(self):
+        self._log.debug("Processing")
+
 
 
 
