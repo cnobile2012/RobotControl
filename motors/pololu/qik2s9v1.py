@@ -79,11 +79,9 @@ class Qik2s9v1(Qik):
         3: (3900, '8-Bit, PWM Frequency 3.9 kHz'),
         }
     _CONFIG_PWM_TO_VALUE = dict([(v[0], k) for k, v in _CONFIG_PWM.items()])
-    MOTORS_CONTINUE = 0
-    MOTORS_STOPPED = 1
     _CONFIG_MOTOR = {
-        MOTORS_CONTINUE: 'Motors are not stopped on error.',
-        MOTORS_STOPPED: 'Motors are stopped on error.',
+        False: 'Motors are not stopped on error.',
+        True: 'Motors are stopped on error.',
         }
 
     def __init__(self, device, baud=38400, version=QIK_VER_2,
