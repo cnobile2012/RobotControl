@@ -290,22 +290,21 @@ class Qik2s9v1(Qik):
         and your Qik was just idle? This happens with or without the motors
         running.
 
-        This also explains why if the Qik is set at a very low timeout that the
-        red LED will come on almost immediately. You will not even get a chance
-        to send it a command before the timeout. This would be like temporarily
-        bricking your Qik. Not a good thing though it's easy to fix by just
-        setting the timeout to 0 again.
+        This also explains why, when the Qik is set at a very low timeout that
+        the red LED will come on almost immediately. You will not even get a
+        chance to send it a command before the timeout. This would be like
+        temporarily bricking your Qik. Not a good thing, though it's easy to
+        fix by just setting the timeout to 0 again.
 
         OK, so how do we actually use the serial timeout. Good question, the
         best way I can think of is to send the Qik a keep alive signal. One
         way of doing this is to execute the getError() method at a little less
         than half the timeout period. So if the timeout was set to 200ms you
         would get the error status every 90ms. The Qik will stay alive unless
-        the keep alive signal is not seen. This should solve the problem, but
-        getting the timing right may be an issue as different Qiks will timeout
-        a little differently from others. When using more than one Qik on the
-        serial buss this may become an issue. You will need to play with some
-        different values.
+        the keep alive signal is not seen. This should solve the problem.
+        However, if the keep alive is sent in a different process or thread
+        you could get a format error if the keep alive command collides with
+        any other command.
 
         :Parameters:
           timeout : `float` or `int`
