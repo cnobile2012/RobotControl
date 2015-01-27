@@ -309,7 +309,29 @@ class TestQik2s9v1(unittest.TestCase):
 
     def test_setSerialTimeout(self):
         self._log.debug("Processing")
+        rtn = self._qik._CONFIG_RETURN.get(0)
+        shortDelay = self._timeoutMap.get(1)
+        longDelay = self._timeoutMap.get(127)
 
+        for i in range(2):
+            # Test short timeout, will be 0.262 on the Qik
+            result = self._qik.setSerialTimeout(0.3)
+            msg = ("{}: Invalid serial timeout '{}' should be '{}'."
+                   ).format(self._PORTOCOL_MAP.get(i), result, rtn)
+            self.assertTrue(result == rtn, msg=msg)
+            result = self._qik.getSerialTimeout()
+            msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
+                   ).format(self._PORTOCOL_MAP.get(i), result, shortDelay)
+            self.assertTrue(result == shortDelay, msg=msg)
+            # Test long timeout, will be 503.04 on the Qik
+            result = self._qik.setSerialTimeout(500.0)
+            msg = ("{}: Invalid serial timeout '{}' should be '{}'."
+                   ).format(self._PORTOCOL_MAP.get(i), result, rtn)
+            self.assertTrue(result == rtn, msg=msg)
+            result = self._qik.getSerialTimeout()
+            msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
+                   ).format(self._PORTOCOL_MAP.get(i), result, longDelay)
+            self.assertTrue(result == longDelay, msg=msg)
 
 
 
