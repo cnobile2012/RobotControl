@@ -32,9 +32,8 @@ class Qik(object):
         }
     _BOOL_TO_INT = {False: 0, True: 1}
 
-    def __init__(self, device, baud, version, readTimeout, writeTimeout, log):
+    def __init__(self, device, baud, readTimeout, writeTimeout, log):
         self._log = log
-        self._version = version
         self._device_numbers = []
         self._serial = serial.Serial(port=device, baudrate=baud,
                                      bytesize=serial.EIGHTBITS,

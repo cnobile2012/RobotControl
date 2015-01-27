@@ -32,8 +32,6 @@ class Qik2s9v1(Qik):
     Implimentation of the Pololu motor controller interface for the Qik 2s9v1
     board.
     """
-    QIK_VER_1 = 1
-    QIK_VER_2 = 2
     DEFAULT_DEVICE_ID = 0x09
     _COMMAND = {
         'get-fw-version': 0x01,
@@ -84,10 +82,10 @@ class Qik2s9v1(Qik):
         True: 'Motors are stopped on error.',
         }
 
-    def __init__(self, device, baud=38400, version=QIK_VER_2,
-                 readTimeout=None, writeTimeout=None, log=None):
-        super(Qik2s9v1, self).__init__(device, baud, version, readTimeout,
-                                       writeTimeout, log)
+    def __init__(self, device, baud=38400, readTimeout=None, writeTimeout=None,
+                 log=None):
+        super(Qik2s9v1, self).__init__(device, baud, readTimeout, writeTimeout,
+                                       log)
         self._timeoutToValue = self._genTimeoutList(0.262)
         self._timeoutKeys = self._timeoutToValue.keys()
         self._timeoutKeys.sort()
