@@ -332,11 +332,41 @@ class TestQik2s9v1(unittest.TestCase):
             msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
                    ).format(self._PORTOCOL_MAP.get(i), result, longDelay)
             self.assertTrue(result == longDelay, msg=msg)
+            self._qik.setCompactProtocol()
 
+    @unittest.skip("Skipped, no return values.")
+    def test_setM0Coast(self):
+        self._log.debug("Processing")
 
+        for i in range(2):
+            self._qik.setM0Speed(50)
+            time.sleep(0.5)
+            self._qik.setM0Coast()
 
+    @unittest.skip("Skipped, no return values.")
+    def test_setM1Coast(self):
+        self._log.debug("Processing")
 
+        for i in range(2):
+            self._qik.setM1Speed(50)
+            time.sleep(0.5)
+            self._qik.setM1Coast()
 
+    @unittest.skip("Skipped, no return values and no get speed command.")
+    def test_setM0Speed(self):
+        self._log.debug("Processing")
+
+        for i in range(2):
+            self._qik.setM0Speed(50)
+            time.sleep(0.5)
+
+    @unittest.skip("Skipped, no return values and no get speed command.")
+    def test_setM1Speed(self):
+        self._log.debug("Processing")
+
+        for i in range(2):
+            self._qik.setM1Speed(50)
+            time.sleep(0.5)
 
 
 if __name__ == '__main__':
