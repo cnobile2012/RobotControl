@@ -42,8 +42,6 @@ class Qik(object):
                                      stopbits=serial.STOPBITS_ONE,
                                      timeout=readTimeout,
                                      writeTimeout=writeTimeout)
-        # DO NOT default to compact protocol. If your Qik gets bricked and
-        # the default it compact it cannot be unbricked with this API.
         self.setPololuProtocol()
         self.currentPWM = {} # Default PWM
 
@@ -462,9 +460,7 @@ class Qik(object):
         :Returns:
           Text message indicating the status of the shutdown error.
         """
-        keys = self._timeoutToValue.keys()
-        keys.sort()
-        timeout = min(keys, key=lambda x:abs(x-timeout))
+        timeout = min(self._timeoutKeys, key=lambda x: abs(x-timeout))
         value = self._timeoutToValue.get(timeout, 0)
         return self._setConfig(self.SERIAL_TIMEOUT, value, device, message)
 

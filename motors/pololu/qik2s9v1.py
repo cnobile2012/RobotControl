@@ -89,6 +89,8 @@ class Qik2s9v1(Qik):
         super(Qik2s9v1, self).__init__(device, baud, version, readTimeout,
                                        writeTimeout, log)
         self._timeoutToValue = self._genTimeoutList(0.262)
+        self._timeoutKeys = self._timeoutToValue.keys()
+        self._timeoutKeys.sort()
         self.findConnectedDevices()
 
     def getFirmwareVersion(self, device=DEFAULT_DEVICE_ID):
