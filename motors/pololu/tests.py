@@ -35,7 +35,7 @@ class TestQik2s9v1(unittest.TestCase):
         super(TestQik2s9v1, self).__init__(name)
         # Timeouts [(0.0, 0), (0.262, 1), ...]
         self._timeoutMap = dict(self.genTimeoutList())
-        logFilePath = os.path.join(BASE_PATH, 'pololu_quk2s9v1.log')
+        logFilePath = os.path.join(BASE_PATH, 'pololu_qik2s9v1.log')
         self._log = setupLogger(fullpath=logFilePath)
 
     def genTimeoutList(self, const=0.262):
