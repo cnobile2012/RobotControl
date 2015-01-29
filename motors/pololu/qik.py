@@ -42,6 +42,9 @@ class Qik(object):
                                      timeout=readTimeout,
                                      writeTimeout=writeTimeout)
         self.setPololuProtocol()
+        self._timeoutToValue = self._genTimeoutList(self.DEFAULT_SERIAL_TIMEOUT)
+        self._timeoutKeys = self._timeoutToValue.keys()
+        self._timeoutKeys.sort()
         self.currentPWM = {} # Default PWM
 
     def _genTimeoutList(self, const):
@@ -318,7 +321,7 @@ class Qik(object):
         if isinstance(num, int):
             x = num & 0x0F
             y = (num >> 4) & 0x07
-            result = 0.262 * x * pow(2, y)
+            result = self.DEFAULT_SERIAL_TIMEOUT * x * pow(2, y)
         else:
             result = num
 

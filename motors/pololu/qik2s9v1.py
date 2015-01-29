@@ -33,6 +33,7 @@ class Qik2s9v1(Qik):
     board.
     """
     DEFAULT_DEVICE_ID = 0x09
+    DEFAULT_SERIAL_TIMEOUT = 0.262
     _COMMAND = {
         'get-fw-version': 0x01,
         'get-error': 0x02,
@@ -86,9 +87,6 @@ class Qik2s9v1(Qik):
                  log=None):
         super(Qik2s9v1, self).__init__(device, baud, readTimeout, writeTimeout,
                                        log)
-        self._timeoutToValue = self._genTimeoutList(0.262)
-        self._timeoutKeys = self._timeoutToValue.keys()
-        self._timeoutKeys.sort()
         self.findConnectedDevices()
 
     def getFirmwareVersion(self, device=DEFAULT_DEVICE_ID):
