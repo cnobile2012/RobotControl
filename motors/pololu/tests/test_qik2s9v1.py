@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# motors/pololu/tests.py
+# motors/pololu/test_qik2s9v1.py
 #
 
 import os
