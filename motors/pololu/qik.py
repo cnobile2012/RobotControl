@@ -466,30 +466,6 @@ class Qik(object):
         value = self._timeoutToValue.get(timeout, 0)
         return self._setConfig(self.SERIAL_TIMEOUT, value, device, message)
 
-    def _setM0Coast(self, device):
-        """
-        Set motor 0 to coast.
-
-        :Parameters:
-          device : `int`
-            The device is the integer number of the hardware devices ID and
-            is only used with the Pololu Protocol.
-        """
-        cmd = self._COMMAND.get('m0-coast')
-        self._writeData(cmd, device)
-
-    def _setM1Coast(self, device):
-        """
-        Set motor 1 to coast.
-
-        :Parameters:
-          device : `int`
-            The device is the integer number of the hardware devices ID and
-            is only used with the Pololu Protocol.
-        """
-        cmd = self._COMMAND.get('m1-coast')
-        self._writeData(cmd, device)
-
     def _setM0Speed(self, speed, device):
         """
         Set motor 0 speed.

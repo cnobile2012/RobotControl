@@ -345,7 +345,8 @@ class Qik2s9v1(Qik):
           SerialException
             IO error when the port is not open.
         """
-        self._setM0Coast(device)
+        cmd = self._COMMAND.get('m0-coast')
+        self._writeData(cmd, device)
 
     def setM1Coast(self, device=DEFAULT_DEVICE_ID):
         """
@@ -363,7 +364,8 @@ class Qik2s9v1(Qik):
           SerialException
             IO error when the port is not open.
         """
-        self._setM1Coast(device)
+        cmd = self._COMMAND.get('m1-coast')
+        self._writeData(cmd, device)
 
     def setM0Speed(self, speed, device=DEFAULT_DEVICE_ID):
         """
