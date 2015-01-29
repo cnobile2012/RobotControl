@@ -12,7 +12,7 @@ from motors.pololu import Qik2s9v1
 
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                         '..', '..', 'logs'))
+                                         '..', '..', '..', 'logs'))
 
 def setupLogger(fullpath=None, level=logging.DEBUG):
     FORMAT = ("%(asctime)s %(levelname)s %(module)s %(funcName)s "

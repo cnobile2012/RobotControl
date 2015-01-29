@@ -18,7 +18,7 @@ tar	: clean
 
 tests	:
 	@(export PYTHONPATH=$(PREFIX); \
-         python motors/pololu/tests.py; \
+         python motors/pololu/tests/test_qik2s9v1.py; \
         )
 
 #----------------------------------------------------------------------
