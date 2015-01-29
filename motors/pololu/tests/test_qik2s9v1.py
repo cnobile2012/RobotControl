@@ -102,11 +102,17 @@ class TestQik2s9v1(unittest.TestCase):
         self._qik.setCompactProtocol()
         self.assertTrue(self._qik.getFirmwareVersion() in (1, 2))
 
-    # Test for Data Overrun Error
+    @unittest.skip("Temporarily skipped")
+    def test_getError_DataOverrunError(self):
+        self._log.debug("Processing")
 
-    # Test for Frame Error
+    @unittest.skip("Temporarily skipped")
+    def test_getError_FrameError(self):
+        self._log.debug("Processing")
 
-    # Test for CRC Error
+    @unittest.skip("Temporarily skipped")
+    def test_getError_CRCError(self):
+        self._log.debug("Processing")
 
     def test_getError_FormatError(self):
         self._log.debug("Processing")
@@ -148,7 +154,6 @@ class TestQik2s9v1(unittest.TestCase):
             self.assertTrue(error in result and len(result) == 1, msg=msg)
             self._qik.setCompactProtocol()
 
-    #@unittest.skip("Temporarily skipped")
     def test_getDeviceID(self):
         """
         Only test Pololu protocol, it's the only protocol that uses the device
