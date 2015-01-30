@@ -58,7 +58,7 @@ class TestQik2s9v1(unittest.TestCase):
         self._log.debug("Processing")
 
         if self._qik.isOpen():
-            for d in self._qik.currentPWM:
+            for d in self._qik._deviceConfig:
                 self._qik.setDeviceID(self._qik.DEFAULT_DEVICE_ID, device=d)
 
             self._qik.getError()
@@ -71,6 +71,16 @@ class TestQik2s9v1(unittest.TestCase):
             self._qik.setM1Coast()
             self._qik.close()
             self._qik = None
+
+    def test_getConfigForDevice(self):
+        self._log.debug("Processing")
+
+        for device in self._qik._deviceConfig:
+            config = self._qik.getConfigForDevice(device)
+            self.assertTrue(config['version'] in (1, 2))
+            self.assertTrue(config['pwm'] == 0)
+            self.assertTrue(config['shutdown'] == 1)
+            self.assertTrue(config['timeout'] == 0)
 
     def test_close(self):
         self._log.debug("Processing")
@@ -166,12 +176,23 @@ class TestQik2s9v1(unittest.TestCase):
         msg = "Invalid device '{}' should be '{}'.".format(
             self._PORTOCOL_MAP.get(0), result, devices[0])
         self.assertTrue(result == devices[0], msg=msg)
-        # Reset device
+        # Change device
         self._qik.setDeviceID(devices[1], device=devices[0])
         result = self._qik.getDeviceID(device=devices[1])
         msg = "{}: Invalid device '{}' should be '{}'.".format(
             self._PORTOCOL_MAP.get(0), result, devices[1])
         self.assertTrue(result == devices[1], msg=msg)
+
+        # Test the stored device config
+        if devices[1] in self._qik._deviceConfig:
+            result = devices[1]
+        else:
+            result = "Device '{}' does not exist".format(devices[1])
+
+        msg = ("{}: Set device '{}' is not correct in stored device config "
+               "should be '{}'").format(self._PORTOCOL_MAP.get(0), result,
+                                        devices[1])
+        self.assertTrue(devices[1] in self._qik._deviceConfig, msg=msg)
 
     def test_getPWMFrequency(self):
         self._log.debug("Processing")
@@ -187,6 +208,13 @@ class TestQik2s9v1(unittest.TestCase):
                 self._PORTOCOL_MAP.get(i), result,
                 self._qik._CONFIG_PWM.get(0)[0])
             self.assertTrue(result == self._qik._CONFIG_PWM.get(0)[0], msg=msg)
+
+            # Test the stored device config
+            config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
+            configResult = config.get('pwm')
+            result = self._qik._getConfig(self._qik.PWM_PARAM,
+                                          self._qik.DEFAULT_DEVICE_ID)
+            self.assertTrue(configResult == result)
             self._qik.setCompactProtocol()
 
     def test_getMotorShutdown(self):

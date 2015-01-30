@@ -45,7 +45,7 @@ class Qik(object):
         self._timeoutToValue = self._genTimeoutList(self.DEFAULT_SERIAL_TIMEOUT)
         self._timeoutKeys = self._timeoutToValue.keys()
         self._timeoutKeys.sort()
-        self.currentPWM = {} # Default PWM
+        self._deviceConfig = {}
 
     def _genTimeoutList(self, const):
         """
@@ -74,14 +74,19 @@ class Qik(object):
         for dev in range(128):
             device = self._getDeviceID(dev)
 
-            if device is not None and int(device) not in self.currentPWM:
-                num = self._getConfig(self.PWM_PARAM, device)
-                self.currentPWM[int(device)] = num
-                freq, msg = self._CONFIG_PWM.get(num, (None, None))
-                self._log and self._log.info("Found device %s with PWM: %s",
-                                             device, freq)
+            if device is not None and int(device) not in self._deviceConfig:
+                config = self._deviceConfig.setdefault(int(device), {})
+                self._deviceCallback(device, config)
+                self._log and self._log.info(
+                    "Found device '%s' with configuration: %s", device, config)
 
         self._serial.timeout = tmpTimeout
+
+    def _deviceCallback(self, device):
+        raise NotImplementedError("Need to implement _deviceCallback.")
+
+    def getConfigForDevice(self, device):
+        return self._deviceConfig.get(device, {})
 
     def close(self):
         """
@@ -385,17 +390,18 @@ class Qik(object):
             the integer stored in the Qik will be returned.
 
         :Returns:
-          A text message or an int. See the `message` parameter above.
+          A text message or an int. See the `message` parameter above. If
+          `value` and `device` are the same `OK` or `0` will be returned
+          depending on the value of `message`.
         """
-        result = self._setConfig(self.DEVICE_ID, value, device, message)
-
-        # Try to keep the correct PWM for a Qik board.
         if value != device:
-            num = self.currentPWM.pop(device)
-        else:
-            num = 0
+            result = self._setConfig(self.DEVICE_ID, value, device, message)
+            self._deviceConfig[value] = self._deviceConfig.pop(device)
+        elif message:
+            result = self._CONFIG_RETURN.get(0)
+        elif not message:
+            result = 0
 
-        self.currentPWM[value] = num
         return result
 
     def _setPWMFrequency(self, pwm, device, message):
@@ -422,7 +428,7 @@ class Qik(object):
             self._log and self._log.error(msg)
             raise ValueError(msg)
 
-        self.currentPWM[device] = value
+        self._deviceConfig[device]['pwm'] = value
         return self._setConfig(self.PWM_PARAM, value, device, message)
 
     def _setMotorShutdown(self, value, device, message):
@@ -443,6 +449,7 @@ class Qik(object):
           Text message indicating the status of the shutdown error.
         """
         value = self._BOOL_TO_INT.get(value, 1)
+        self._deviceConfig[device]['shutdown'] = value
         return self._setConfig(self.MOTOR_ERR_SHUTDOWN, value, device, message)
 
     def _setSerialTimeout(self, timeout, device, message):
@@ -464,6 +471,7 @@ class Qik(object):
         """
         timeout = min(self._timeoutKeys, key=lambda x: abs(x-timeout))
         value = self._timeoutToValue.get(timeout, 0)
+        self._deviceConfig[device]['timeout'] = value
         return self._setConfig(self.SERIAL_TIMEOUT, value, device, message)
 
     def _setM0Speed(self, speed, device):
@@ -500,7 +508,8 @@ class Qik(object):
 
         :Parameters:
           speed : `int`
-            Motor speed as an integer.
+            Motor speed as an integer. Negative numbers indicate reverse
+            speeds.
           motor : `str`
             A string value indicating the motor to set the speed on.
           device : `int`
@@ -514,7 +523,7 @@ class Qik(object):
             reverse = True
 
         # 0 and 2 for Qik 2s9v1, 0, 2, and 4 for 2s12v10
-        if self.currentPWM.get(device) in (0, 2, 4,) and speed > 127:
+        if self._deviceConfig[device]['pwm'] in (0, 2, 4,) and speed > 127:
             speed = 127
 
         if speed > 127:

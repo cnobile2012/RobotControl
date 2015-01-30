@@ -29,7 +29,7 @@ __version_info__ = tuple([int(num) for num in __version__.split('.')])
 
 class Qik2s9v1(Qik):
     """
-    Implimentation of the Pololu motor controller interface for the Qik 2s9v1
+    Implementation of the Pololu motor controller interface for the Qik 2s9v1
     board.
     """
     DEFAULT_DEVICE_ID = 0x09
@@ -88,6 +88,12 @@ class Qik2s9v1(Qik):
         super(Qik2s9v1, self).__init__(device, baud, readTimeout, writeTimeout,
                                        log)
         self.findConnectedDevices()
+
+    def _deviceCallback(self, device, config):
+        config['version'] = self._getFirmwareVersion(device)
+        config['pwm'] = self._getConfig(self.PWM_PARAM, device)
+        config['shutdown'] = self._getConfig(self.MOTOR_ERR_SHUTDOWN, device)
+        config['timeout'] = self._getSerialTimeout(device)
 
     def getFirmwareVersion(self, device=DEFAULT_DEVICE_ID):
         """
@@ -211,7 +217,9 @@ class Qik2s9v1(Qik):
             the integer stored in the Qik will be returned.
 
         :Returns:
-          A text message or an int. See the `message` parameter above.
+          A text message or an int. See the `message` parameter above. If
+          `value` and `device` are the same `OK` or `0` will be returned
+          depending on the value of `message`.
 
         :Exceptions:
           SerialException
@@ -373,7 +381,8 @@ class Qik2s9v1(Qik):
 
         :Parameters:
           speed : `int`
-            Motor speed as an integer.
+            Motor speed as an integer. Negative numbers indicate reverse
+            speeds.
 
         :Keywords:
           device : `int`
@@ -395,7 +404,8 @@ class Qik2s9v1(Qik):
 
         :Parameters:
           speed : `int`
-            Motor speed as an integer.
+            Motor speed as an integer. Negative numbers indicate reverse
+            speeds.
 
         :Keywords:
           device : `int`
