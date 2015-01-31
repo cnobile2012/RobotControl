@@ -58,7 +58,9 @@ class TestQik2s9v1(unittest.TestCase):
         self._log.debug("Processing")
 
         if self._qik.isOpen():
-            for d in self._qik._deviceConfig:
+            dConfig = self._qik._deviceConfig.copy()
+
+            for d in dConfig:
                 self._qik.setDeviceID(self._qik.DEFAULT_DEVICE_ID, device=d)
 
             self._qik.getError()
@@ -268,12 +270,14 @@ class TestQik2s9v1(unittest.TestCase):
                        "should be '{}'.").format(protocol, num, pwm, 0)
                 self.assertTrue(num == 0, msg=msg)
                 # Test the stored device config
+                freq = self._qik.getPWMFrequency(message=False)
+                num = self._qik._CONFIG_PWM_TO_VALUE.get(freq)
                 config = self._qik.getConfigForDevice(
                     self._qik.DEFAULT_DEVICE_ID)
                 cnum = config.get('pwm')
                 msg = ("{}: Invalid PWM number '{}' for PWM '{}', "
                        "in stored config, should be '{}'").format(
-                    protocol, result, pwm, cnum)
+                    protocol, num, pwm, cnum)
                 self.assertTrue(num == cnum, msg=msg)
 
             self._qik.setCompactProtocol()
