@@ -298,10 +298,9 @@ class Qik(object):
             is only used with the Pololu Protocol.
 
         :Returns:
-          Text message indicating the status of the shutdown error.
+          Returns `True` when morot will shutdown on and error, else `False`.
         """
-        result = self._getConfig(self.MOTOR_ERR_SHUTDOWN, device)
-        return self._CONFIG_MOTOR.get(result, 'Unknown state')
+        return bool(self._getConfig(self.MOTOR_ERR_SHUTDOWN, device))
 
     def _getSerialTimeout(self, device):
         """

@@ -78,10 +78,6 @@ class Qik2s9v1(Qik):
         3: (3900, '8-Bit, PWM Frequency 3.9 kHz'),
         }
     _CONFIG_PWM_TO_VALUE = dict([(v[0], k) for k, v in _CONFIG_PWM.items()])
-    _CONFIG_MOTOR = {
-        False: 'Motors are not stopped on error.',
-        True: 'Motors are stopped on error.',
-        }
 
     def __init__(self, device, baud=38400, readTimeout=None, writeTimeout=None,
                  log=None):
@@ -173,7 +169,7 @@ class Qik2s9v1(Qik):
             default value.
 
         :Returns:
-          Text message indicating the status of the shutdown error.
+          Returns `True` when morot will shutdown on and error, else `False`.
         """
         return self._getMotorShutdown(device)
 
