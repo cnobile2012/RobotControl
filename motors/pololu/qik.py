@@ -472,7 +472,7 @@ class Qik(object):
         """
         timeout = min(self._timeoutKeys, key=lambda x: abs(x-timeout))
         value = self._timeoutToValue.get(timeout, 0)
-        self._deviceConfig[device]['timeout'] = value
+        self._deviceConfig[device]['timeout'] = timeout
         return self._setConfig(self.SERIAL_TIMEOUT, value, device, message)
 
     def _setM0Speed(self, speed, device):

@@ -364,8 +364,7 @@ class TestQik2s9v1(unittest.TestCase):
 
             # Test the stored device config
             config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
-            num = config.get('timeout')
-            timeout = self._qik._valueToTimeout.get(num)
+            timeout = config.get('timeout')
             msg = ("{}: Invalid motor timeout value '{}' in stored config, "
                    "should be '{}'.").format(protocol, result, timeout)
             self.assertTrue(result == timeout, msg=msg)
@@ -382,8 +381,7 @@ class TestQik2s9v1(unittest.TestCase):
 
             # Test the stored device config
             config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
-            num = config.get('timeout')
-            timeout = self._qik._valueToTimeout.get(num)
+            timeout = config.get('timeout')
             msg = ("{}: Invalid motor timeout value '{}' in stored config, "
                    "should be '{}'.").format(protocol, result, timeout)
             self.assertTrue(result == timeout, msg=msg)
