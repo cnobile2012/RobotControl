@@ -208,11 +208,10 @@ class TestQik2s9v1(unittest.TestCase):
 
         for i in range(2):
             protocol = self._PROTOCOL_MAP.get(i)
-            result = self._qik.getMotorShutdown()
+            tf = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
-                   ).format(protocol, result, self._qik._CONFIG_MOTOR.get(True))
-            self.assertTrue(result == self._qik._CONFIG_MOTOR.get(True),
-                            msg=msg)
+                   ).format(protocol, tf, True)
+            self.assertTrue(tf == True, msg=msg)
             self._qik.setCompactProtocol()
 
     def test_getSerialTimeout(self):
@@ -293,13 +292,12 @@ class TestQik2s9v1(unittest.TestCase):
         for i in range(2):
             protocol = self._PROTOCOL_MAP.get(i)
             # Start with default motor stop on errors
-            sdValue = self._qik._CONFIG_MOTOR.get(True)
             # Start up motor M0
             self._qik.setM0Speed(50)
-            result = self._qik.getMotorShutdown()
+            tf = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
-                   ).format(protocol, result, sdValue)
-            self.assertTrue(result == sdValue, msg=msg)
+                   ).format(protocol, tf, True)
+            self.assertTrue(tf == True, msg=msg)
             time.sleep(0.5)
             # Create an error condition that will stop the motors.
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
@@ -309,23 +307,30 @@ class TestQik2s9v1(unittest.TestCase):
             self.assertTrue(error in result and len(result) == 1, msg=msg)
 
             # Switch to non-stopping motors
-            sdValue = self._qik._CONFIG_MOTOR.get(False)
-            result = self._qik.setMotorShutdown(False)
+            text = self._qik.setMotorShutdown(False)
             msg = "{}: Invalid response '{}' should be '{}'.".format(
-                protocol, result, rtn)
-            self.assertTrue(result == rtn, msg=msg)
-            result = self._qik.getMotorShutdown()
+                protocol, text, rtn)
+            self.assertTrue(text == rtn, msg=msg)
+            tf = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
-                   ).format(protocol, result, sdValue)
-            self.assertTrue(result == sdValue, msg=msg)
-            # Start up motor M0, If change motor shutdown need to come to
-            # full stop.
+                   ).format(protocol, text, False)
+            self.assertTrue(text == rtn, msg=msg)
+
+            # Test the stored device config
+            config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
+            shutdown = config.get('shutdown')
+            msg = ("{}: Invalid motor shutdown value '{}' in stored config, "
+                   "should be '{}'.").format(protocol, text, False)
+            self.assertTrue(tf == bool(shutdown), msg=msg)
+
+            # Start up motor M0, If change motor shutdown, need to come to
+            # full stop. HAVING TO DO THIS MAY BE BECAUSE OF A BUG SOMEWHERE.
             self._qik.setM0Speed(0)
             self._qik.setM0Speed(-50)
-            result = self._qik.getMotorShutdown()
+            tf = self._qik.getMotorShutdown()
             msg = ("{}: Invalid motor shutdown value '{}' should be '{}'."
-                   ).format(protocol, result, sdValue)
-            self.assertTrue(result == sdValue, msg=msg)
+                   ).format(protocol, tf, False)
+            self.assertTrue(tf == False, msg=msg)
             time.sleep(0.5)
             # Create an error condition that will not stop the motors.
             self._qik._writeData(command, self._qik.DEFAULT_DEVICE_ID)
@@ -335,6 +340,13 @@ class TestQik2s9v1(unittest.TestCase):
             self.assertTrue(error in result and len(result) == 1, msg=msg)
             self._qik.setM0Speed(0)
             self._qik.setM0Coast()
+
+            # Test the stored device config
+            config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
+            shutdown = config.get('shutdown')
+            msg = ("{}: Invalid motor shutdown value '{}' in stored config, "
+                   "should be '{}'.").format(protocol, text, False)
+            self.assertTrue(tf == bool(shutdown), msg=msg)
 
             # Switch back to stopping motor.
             result = self._qik.setMotorShutdown(True)
