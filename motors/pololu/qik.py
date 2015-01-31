@@ -43,6 +43,8 @@ class Qik(object):
                                      writeTimeout=writeTimeout)
         self.setPololuProtocol()
         self._timeoutToValue = self._genTimeoutList(self.DEFAULT_SERIAL_TIMEOUT)
+        self._valueToTimeout = dict(
+            [(v, k) for k, v in self._timeoutToValue.items()])
         self._timeoutKeys = self._timeoutToValue.keys()
         self._timeoutKeys.sort()
         self._deviceConfig = {}

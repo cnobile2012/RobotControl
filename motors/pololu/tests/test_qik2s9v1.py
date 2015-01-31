@@ -34,21 +34,8 @@ class TestQik2s9v1(unittest.TestCase):
     def __init__(self, name):
         super(TestQik2s9v1, self).__init__(name)
         # Timeouts [(0.0, 0), (0.262, 1), ...]
-        self._timeoutMap = dict(self.genTimeoutList())
         logFilePath = os.path.join(BASE_PATH, 'pololu_qik2s9v1.log')
         self._log = setupLogger(fullpath=logFilePath)
-
-    def genTimeoutList(self, const=0.262):
-        result = []
-
-        for v in range(128):
-            x = v & 0x0F
-            y = (v >> 4) & 0x07
-
-            if not y or (y and x > 7):
-                result.append((v, const * x * 2**y))
-
-        return result
 
     def setUp(self):
         self._log.debug("Processing")
@@ -220,14 +207,16 @@ class TestQik2s9v1(unittest.TestCase):
         for i in range(2):
             protocol = self._PROTOCOL_MAP.get(i)
             result = self._qik.getSerialTimeout()
+            timeout = self._qik._valueToTimeout.get(0)
             msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
-                   ).format(protocol, result, self._timeoutMap.get(0))
-            self.assertTrue(result == self._timeoutMap.get(0), msg=msg)
+                   ).format(protocol, result, timeout)
+            self.assertTrue(result == timeout, msg=msg)
             self._qik.setSerialTimeout(200.0)
             result = self._qik.getSerialTimeout()
+            timeout = self._qik._valueToTimeout.get(108)
             msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
-                   ).format(protocol, result, self._timeoutMap.get(108))
-            self.assertTrue(result == self._timeoutMap.get(108), msg=msg)
+                   ).format(protocol, result, timeout)
+            self.assertTrue(result == timeout, msg=msg)
             self._qik.setCompactProtocol()
             self._qik.setSerialTimeout(0.0)
 
@@ -320,7 +309,7 @@ class TestQik2s9v1(unittest.TestCase):
             config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
             shutdown = config.get('shutdown')
             msg = ("{}: Invalid motor shutdown value '{}' in stored config, "
-                   "should be '{}'.").format(protocol, text, False)
+                   "should be '{}'.").format(protocol, tf, bool(shutdown))
             self.assertTrue(tf == bool(shutdown), msg=msg)
 
             # Start up motor M0, If change motor shutdown, need to come to
@@ -345,7 +334,7 @@ class TestQik2s9v1(unittest.TestCase):
             config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
             shutdown = config.get('shutdown')
             msg = ("{}: Invalid motor shutdown value '{}' in stored config, "
-                   "should be '{}'.").format(protocol, text, False)
+                   "should be '{}'.").format(protocol, bool(shutdown), tf)
             self.assertTrue(tf == bool(shutdown), msg=msg)
 
             # Switch back to stopping motor.
@@ -358,8 +347,8 @@ class TestQik2s9v1(unittest.TestCase):
     def test_setSerialTimeout(self):
         self._log.debug("Processing")
         rtn = self._qik._CONFIG_RETURN.get(0)
-        shortDelay = self._timeoutMap.get(1)
-        longDelay = self._timeoutMap.get(127)
+        shortDelay = self._qik._valueToTimeout.get(1)
+        longDelay = self._qik._valueToTimeout.get(127)
 
         for i in range(2):
             protocol = self._PROTOCOL_MAP.get(i)
@@ -372,6 +361,15 @@ class TestQik2s9v1(unittest.TestCase):
             msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
                    ).format(protocol, result, shortDelay)
             self.assertTrue(result == shortDelay, msg=msg)
+
+            # Test the stored device config
+            config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
+            num = config.get('timeout')
+            timeout = self._qik._valueToTimeout.get(num)
+            msg = ("{}: Invalid motor timeout value '{}' in stored config, "
+                   "should be '{}'.").format(protocol, result, timeout)
+            self.assertTrue(result == timeout, msg=msg)
+
             # Test long timeout, will be 503.04 on the Qik
             result = self._qik.setSerialTimeout(500.0)
             msg = ("{}: Invalid serial timeout '{}' should be '{}'."
@@ -381,6 +379,15 @@ class TestQik2s9v1(unittest.TestCase):
             msg = ("{}: Invalid serial timeout value '{}' should be '{}'."
                    ).format(protocol, result, longDelay)
             self.assertTrue(result == longDelay, msg=msg)
+
+            # Test the stored device config
+            config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
+            num = config.get('timeout')
+            timeout = self._qik._valueToTimeout.get(num)
+            msg = ("{}: Invalid motor timeout value '{}' in stored config, "
+                   "should be '{}'.").format(protocol, result, timeout)
+            self.assertTrue(result == timeout, msg=msg)
+
             self._qik.setCompactProtocol()
 
     @unittest.skip("Skipped, no return values.")
