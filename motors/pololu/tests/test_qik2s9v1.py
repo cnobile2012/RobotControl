@@ -183,17 +183,6 @@ class TestQik2s9v1(unittest.TestCase):
             self._PORTOCOL_MAP.get(0), result, devices[1])
         self.assertTrue(result == devices[1], msg=msg)
 
-        # Test the stored device config
-        if devices[1] in self._qik._deviceConfig:
-            result = devices[1]
-        else:
-            result = "Device '{}' does not exist".format(devices[1])
-
-        msg = ("{}: Set device '{}' is not correct in stored device config "
-               "should be '{}'").format(self._PORTOCOL_MAP.get(0), result,
-                                        devices[1])
-        self.assertTrue(devices[1] in self._qik._deviceConfig, msg=msg)
-
     def test_getPWMFrequency(self):
         self._log.debug("Processing")
 
@@ -208,13 +197,6 @@ class TestQik2s9v1(unittest.TestCase):
                 self._PORTOCOL_MAP.get(i), result,
                 self._qik._CONFIG_PWM.get(0)[0])
             self.assertTrue(result == self._qik._CONFIG_PWM.get(0)[0], msg=msg)
-
-            # Test the stored device config
-            config = self._qik.getConfigForDevice(self._qik.DEFAULT_DEVICE_ID)
-            configResult = config.get('pwm')
-            result = self._qik._getConfig(self._qik.PWM_PARAM,
-                                          self._qik.DEFAULT_DEVICE_ID)
-            self.assertTrue(configResult == result)
             self._qik.setCompactProtocol()
 
     def test_getMotorShutdown(self):
@@ -261,6 +243,10 @@ class TestQik2s9v1(unittest.TestCase):
             msg = ("{}: Invalid device ID '{}' should be '{}'.").format(
                 self._PORTOCOL_MAP.get(i), result, devices[0])
             self.assertTrue(result == 0, msg=msg)
+            # Test that device has been properly changes in the stored config.
+            msg = ("{}: Set device '{}' is not in stored device config "
+                   ).format(self._PORTOCOL_MAP.get(i), result)
+            self.assertTrue(devices[0] in self._qik._deviceConfig, msg=msg)
             self._qik.setCompactProtocol()
 
     def test_setPWMFrequency(self):
@@ -269,16 +255,26 @@ class TestQik2s9v1(unittest.TestCase):
         nums = dict([(v[0], k) for k, v in self._qik._CONFIG_PWM.items()])
 
         for i in range(2):
+            protocol = self._PORTOCOL_MAP.get(i)
+
             for pwm in pwms:
                 result = self._qik.setPWMFrequency(pwm)
                 rtn = self._qik._CONFIG_RETURN.get(0)
-                msg = ("{}: Invalid PM return text '{}' should be '{}'."
-                       ).format(self._PORTOCOL_MAP.get(i), result, rtn)
+                msg = ("{}: Invalid PM return text '{}' for PWM '{}', "
+                       "should be '{}'.").format(protocol, result, pwm, rtn)
                 self.assertTrue(result == rtn, msg=msg)
-                result = self._qik.setPWMFrequency(pwm, message=False)
-                msg = ("{}: Invalid PWM return value '{}' should be '{}'."
-                       ).format(self._PORTOCOL_MAP.get(i), result, 0)
-                self.assertTrue(result == 0, msg=msg)
+                num = self._qik.setPWMFrequency(pwm, message=False)
+                msg = ("{}: Invalid PWM number '{}' for PWM '{}', "
+                       "should be '{}'.").format(protocol, num, pwm, 0)
+                self.assertTrue(num == 0, msg=msg)
+                # Test the stored device config
+                config = self._qik.getConfigForDevice(
+                    self._qik.DEFAULT_DEVICE_ID)
+                cnum = config.get('pwm')
+                msg = ("{}: Invalid PWM number '{}' for PWM '{}', "
+                       "in stored config, should be '{}'").format(
+                    protocol, result, pwm, cnum)
+                self.assertTrue(num == cnum, msg=msg)
 
             self._qik.setCompactProtocol()
 
