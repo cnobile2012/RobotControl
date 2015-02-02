@@ -4,7 +4,7 @@
 # Basic algorithm thanks to Jean-Loup Le Roux
 # https://code.google.com/p/robotter/source/browse/code/crc7.py?repo=charon
 #
-# Changes by Carl J. Nobile
+# Modifications by Carl J. Nobile
 #
 
 CRC7_POLY = 0x91
@@ -44,6 +44,4 @@ if __name__ == '__main__':
         data = sys.stdin.read()
 
     data = [int(b) for b in data.replace('\n', ',').split(',') if b != '']
-    #print data
-    b = crc7(data)
-    print '\n0x%02x, %s' % (b, b)
+    print '\n{0:#x}, {0}'.format(crc7(data))
