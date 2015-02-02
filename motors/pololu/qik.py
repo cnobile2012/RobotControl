@@ -69,6 +69,8 @@ class Qik(object):
 
     def findConnectedDevices(self):
         """
+        Find all the devices on the serial buss and store the results in a
+        class member object.
         """
         tmpTimeout = self._serial.timeout
         self._serial.timeout = 0.01
@@ -155,6 +157,13 @@ class Qik(object):
         self._serial.write(bytearray(sequence))
         self._log and self._log.debug("Wrote byte sequence: %s",
                                       [hex(num) for num in sequence])
+
+    def _genCRCByte(self, sequence):
+        b = None
+
+
+
+        return b
 
     def _getFirmwareVersion(self, device):
         """
