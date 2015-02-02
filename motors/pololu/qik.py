@@ -22,6 +22,8 @@ __docformat__ = "restructuredtext en"
 
 import serial
 
+from .crc7 import crc7
+
 
 class Qik(object):
     _BAUD_DETECT = 0xAA
@@ -90,6 +92,13 @@ class Qik(object):
         raise NotImplementedError("Need to implement _deviceCallback.")
 
     def getConfigForDevice(self, device):
+        """
+        Get a dictionary of the current hardware configuration options for
+        the device.
+
+        :Returns:
+          Dictionary of current configuration options.
+        """
         return self._deviceConfig.get(device, {})
 
     def close(self):
@@ -100,6 +109,12 @@ class Qik(object):
             self._serial.close()
 
     def isOpen(self):
+        """
+        Check if the serial connection is open.
+
+        :Returns:
+          If `True` the serial connction is open else if `False` it is closed.
+        """
         return self._serial.isOpen()
 
     def setCompactProtocol(self):
@@ -111,6 +126,13 @@ class Qik(object):
         self._log and self._log.debug("Compact protocol has been set.")
 
     def isCompactProtocol(self):
+        """
+        Check if currently using the compact protocol.
+
+        :Returns:
+          if `True` the compact protocol is currently being used else if
+          `False` it is not currently being used.
+        """
         return self._compact == True
 
     def setPololuProtocol(self):
@@ -121,6 +143,13 @@ class Qik(object):
         self._log and self._log.debug("Pololu protocol has been set.")
 
     def isPololuProtocol(self):
+        """
+        Check if currently using the pololu protocol.
+
+        :Returns:
+          if `True` the pololu protocol is currently being used else if
+          `False` it is not currently being used.
+         """
         return self._compact == False
 
     def _writeData(self, command, device, params=()):
@@ -157,13 +186,6 @@ class Qik(object):
         self._serial.write(bytearray(sequence))
         self._log and self._log.debug("Wrote byte sequence: %s",
                                       [hex(num) for num in sequence])
-
-    def _genCRCByte(self, sequence):
-        b = None
-
-
-
-        return b
 
     def _getFirmwareVersion(self, device):
         """
