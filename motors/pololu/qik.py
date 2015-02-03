@@ -50,6 +50,7 @@ class Qik(object):
         self._timeoutKeys = self._timeoutToValue.keys()
         self._timeoutKeys.sort()
         self._deviceConfig = {}
+        self._crc = False
 
     def _genTimeoutList(self, const):
         """
@@ -152,6 +153,25 @@ class Qik(object):
          """
         return self._compact == False
 
+    def setCRC(self, value):
+        """
+        Enable or disable cyclic redundancy check.
+
+        :Parameters:
+          value : `bool`
+            If `True` CRC is enabled else if `False` CRC is disabled.
+        """
+        self._crc = value
+
+    def isCRC(self):
+        """
+        Check if CRC is enabled.
+
+        :Returns:
+          If `True` CRC is enabled else if `False` CRC is disabled.
+        """
+        return self._crc == True
+
     def _writeData(self, command, device, params=()):
         """
         Write the data to the device.
@@ -182,6 +202,9 @@ class Qik(object):
 
         for param in params:
             sequence.append(param)
+
+        if self._crc:
+            sequence.append(crc7(sequence))
 
         self._serial.write(bytearray(sequence))
         self._log and self._log.debug("Wrote byte sequence: %s",
