@@ -17,6 +17,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+__all__ = ['isRootUser', 'GPIO', 'getBasePath', 'ConfigLogger',
+           'setupMultiplePins', 'Pin', 'Event',
+           'InvalidPinNomenclatureException', 'InvalidDirectionException',
+           'InvalidEdgeException', 'InvalidArgumentsException']
+
 import os
 import logging
 
@@ -60,9 +65,3 @@ def setupMultiplePins(pinHeader, startPin, pinRange=8, direction=GPIO.OUT):
         channel = "P{}_{}".format(pinHeader, pin)
         #print channel, direction
         GPIO.setup(channel, direction)
-
-
-__all__ = ['isRootUser', 'GPIO', 'getBasePath', 'ConfigLogger',
-           'setupMultiplePins', 'Pin', 'Event',
-           'InvalidPinNomenclatureException', 'InvalidDirectionException',
-           'InvalidEdgeException', 'InvalidArgumentsException']
