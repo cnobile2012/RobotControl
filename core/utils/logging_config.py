@@ -21,7 +21,7 @@ import logging
 
 
 def getBasePath():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 
 class ConfigLogger(object):
@@ -39,14 +39,23 @@ class ConfigLogger(object):
 
     def config(self, loggerName=None, filename=None, level=logging.INFO):
         """
-        loggerName is not used yet.
+        Config the logger.
         """
         if filename is not None:
             filePath = os.path.join(self._logPath, filename)
         else:
             filePath = None
 
-        logging.basicConfig(filename=filePath, format=self._format, level=level)
+        if loggerName and filePath:
+            logger = logging.getLogger(loggerName)
+            logger.setLevel(level)
+            handler = logging.FileHandler(filePath)
+            formatter = logging.Formatter(self._format)
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+        else:
+            logging.basicConfig(filename=filePath, format=self._format,
+                                level=level)
 
     def setFormat(self, fmt=None, default=_DEFAULT_FORMAT):
         """
