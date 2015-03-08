@@ -1,5 +1,5 @@
 #
-# central/utils/logging_config.py
+# core/utils/logging_config.py
 #
 
 """
@@ -26,7 +26,7 @@ def getBasePath():
 
 class ConfigLogger(object):
     """
-    Setup some basic logging. This could get more sophisticated in the future.
+    Setup some basic logging.
     """
     _DEFAULT_FORMAT = ("%(asctime)s %(levelname)s %(module)s %(funcName)s "
                        "[line:%(lineno)d] %(message)s")

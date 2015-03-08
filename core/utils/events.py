@@ -1,5 +1,5 @@
 #
-# central/utils/event.py
+# core/utils/event.py
 #
 
 """

@@ -1,5 +1,5 @@
 #
-# central/utils/basegpio.py
+# core/utils/basegpio.py
 #
 
 """

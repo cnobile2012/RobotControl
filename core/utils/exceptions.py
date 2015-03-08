@@ -1,5 +1,5 @@
 #
-# central/utils/exceptions.py
+# core/utils/exceptions.py
 #
 
 """
