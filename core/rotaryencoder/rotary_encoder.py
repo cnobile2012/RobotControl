@@ -1,5 +1,5 @@
 #
-# central/rotaryencoder/rotary_encoder.py
+# core/rotaryencoder/rotary_encoder.py
 #
 
 """
